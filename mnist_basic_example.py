@@ -8,11 +8,17 @@ import torch.nn as nn
 import torch.nn.functional as F
 import numpy as np
 
-# Check if MPS is available
-if torch.backends.mps.is_available():
+# Check if CUDA or MPS is available
+if torch.cuda.is_available():
+    device = torch.device("cuda")  # Use CUDA for NVIDIA GPU
+    print(f"Using CUDA: {torch.cuda.get_device_name(0)}")
+elif torch.backends.mps.is_available():
     device = torch.device("mps")  # Use Apple's MPS
+    print("Using Apple MPS (Metal Performance Shaders)")
 else:
     device = torch.device("cpu")  # Fallback to CPU
+    print("Using CPU")
+
 
 print(f"Running on device: {device}")
 

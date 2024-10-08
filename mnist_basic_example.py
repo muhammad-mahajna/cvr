@@ -7,7 +7,6 @@ import torch.utils
 import torch.nn as nn
 import torch.nn.functional as F
 import numpy as np
-import matplotlib.pyplot as plt
 
 # Check if MPS is available
 if torch.backends.mps.is_available():
@@ -99,8 +98,6 @@ print(device)
 
 # %%
 # Training loop for fcn
-import numpy as np
-import matplotlib.pyplot as plt
 
 num_epochs = 5
 loss_arr =  np.array([])

@@ -2,13 +2,18 @@
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
 #SBATCH --cpus-per-task=1
-#SBATCH --time=00:00:10
+#SBATCH --time=00:10:00
 #SBATCH --mem=1GB
 #SBATCH --job-name=MyFirstJobOnARC
-#SBATCH --partition=cpu16
+#SBATCH --partition=cpu2023
 #SBATCH --mail-type=END
 #SBATCH --mail-user=muhammad.mahajna@ucalgary.ca
 #SBATCH --output=OutputFromMyFirstJob_%j.out
+#SBATCH --error=ErrorFromMyFirstJob_%j.err    # Standard error
 
 sleep 10s
 echo Hello World
+echo Starting model training
+python mnist_basic_example.py
+
+echo Finished model training

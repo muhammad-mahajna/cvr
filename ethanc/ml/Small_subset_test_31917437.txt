@@ -1,0 +1,120 @@
+2024-08-20 10:52:05.130594: I tensorflow/core/util/port.cc:153] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable `TF_ENABLE_ONEDNN_OPTS=0`.
+2024-08-20 10:52:05.146931: E external/local_xla/xla/stream_executor/cuda/cuda_fft.cc:485] Unable to register cuFFT factory: Attempting to register factory for plugin cuFFT when one has already been registered
+2024-08-20 10:52:05.165732: E external/local_xla/xla/stream_executor/cuda/cuda_dnn.cc:8454] Unable to register cuDNN factory: Attempting to register factory for plugin cuDNN when one has already been registered
+2024-08-20 10:52:05.171144: E external/local_xla/xla/stream_executor/cuda/cuda_blas.cc:1452] Unable to register cuBLAS factory: Attempting to register factory for plugin cuBLAS when one has already been registered
+2024-08-20 10:52:05.185381: I tensorflow/core/platform/cpu_feature_guard.cc:210] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.
+To enable the following instructions: AVX2 AVX512F AVX512_VNNI FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.
+2024-08-20 10:52:07.203922: W tensorflow/compiler/tf2tensorrt/utils/py_utils.cc:38] TF-TRT Warning: Could not find TensorRT
+/home/ethan.church/software/miniconda3/envs/gpu_tflow/lib/python3.11/site-packages/keras/src/layers/convolutional/base_conv.py:107: UserWarning: Do not pass an `input_shape`/`input_dim` argument to a layer. When using Sequential models, prefer using an `Input(shape)` object as the first layer in the model instead.
+  super().__init__(activity_regularizer=activity_regularizer, **kwargs)
+starting loading in the data
+finished loading in data
+reshaping the data
+(1, 435, 1)
+making a dataset
+getting a validation sample
+finished splitting the validation
+Model: "sequential"
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━┓
+┃ Layer (type)                    ┃ Output Shape           ┃       Param # ┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━┩
+│ conv1d (Conv1D)                 │ (None, 435, 20)        │            80 │
+├─────────────────────────────────┼────────────────────────┼───────────────┤
+│ batch_normalization             │ (None, 435, 20)        │            80 │
+│ (BatchNormalization)            │                        │               │
+├─────────────────────────────────┼────────────────────────┼───────────────┤
+│ max_pooling1d (MaxPooling1D)    │ (None, 217, 20)        │             0 │
+├─────────────────────────────────┼────────────────────────┼───────────────┤
+│ conv1d_1 (Conv1D)               │ (None, 217, 40)        │         2,440 │
+├─────────────────────────────────┼────────────────────────┼───────────────┤
+│ max_pooling1d_1 (MaxPooling1D)  │ (None, 108, 40)        │             0 │
+├─────────────────────────────────┼────────────────────────┼───────────────┤
+│ dropout (Dropout)               │ (None, 108, 40)        │             0 │
+├─────────────────────────────────┼────────────────────────┼───────────────┤
+│ conv1d_2 (Conv1D)               │ (None, 108, 80)        │         9,680 │
+├─────────────────────────────────┼────────────────────────┼───────────────┤
+│ batch_normalization_1           │ (None, 108, 80)        │           320 │
+│ (BatchNormalization)            │                        │               │
+├─────────────────────────────────┼────────────────────────┼───────────────┤
+│ max_pooling1d_2 (MaxPooling1D)  │ (None, 54, 80)         │             0 │
+├─────────────────────────────────┼────────────────────────┼───────────────┤
+│ conv1d_3 (Conv1D)               │ (None, 54, 160)        │        38,560 │
+├─────────────────────────────────┼────────────────────────┼───────────────┤
+│ batch_normalization_2           │ (None, 54, 160)        │           640 │
+│ (BatchNormalization)            │                        │               │
+├─────────────────────────────────┼────────────────────────┼───────────────┤
+│ max_pooling1d_3 (MaxPooling1D)  │ (None, 27, 160)        │             0 │
+├─────────────────────────────────┼────────────────────────┼───────────────┤
+│ dropout_1 (Dropout)             │ (None, 27, 160)        │             0 │
+├─────────────────────────────────┼────────────────────────┼───────────────┤
+│ conv1d_4 (Conv1D)               │ (None, 27, 320)        │       153,920 │
+├─────────────────────────────────┼────────────────────────┼───────────────┤
+│ batch_normalization_3           │ (None, 27, 320)        │         1,280 │
+│ (BatchNormalization)            │                        │               │
+├─────────────────────────────────┼────────────────────────┼───────────────┤
+│ max_pooling1d_4 (MaxPooling1D)  │ (None, 13, 320)        │             0 │
+├─────────────────────────────────┼────────────────────────┼───────────────┤
+│ flatten (Flatten)               │ (None, 4160)           │             0 │
+├─────────────────────────────────┼────────────────────────┼───────────────┤
+│ dropout_2 (Dropout)             │ (None, 4160)           │             0 │
+├─────────────────────────────────┼────────────────────────┼───────────────┤
+│ dense (Dense)                   │ (None, 1)              │         4,161 │
+└─────────────────────────────────┴────────────────────────┴───────────────┘
+ Total params: 211,161 (824.85 KB)
+ Trainable params: 210,001 (820.32 KB)
+ Non-trainable params: 1,160 (4.53 KB)
+Epoch 1/20
+958464/958464 - 3540s - 4ms/step - loss: 0.0527 - mae: 0.0753 - mse: 0.0443 - val_loss: 0.0158 - val_mae: 0.0565 - val_mse: 0.0158
+Epoch 2/20
+958464/958464 - 3544s - 4ms/step - loss: 0.0240 - mae: 0.0628 - mse: 0.0240 - val_loss: 0.0158 - val_mae: 0.0565 - val_mse: 0.0158
+Epoch 3/20
+958464/958464 - 3474s - 4ms/step - loss: 0.0240 - mae: 0.0628 - mse: 0.0240 - val_loss: 0.0158 - val_mae: 0.0565 - val_mse: 0.0158
+Epoch 4/20
+958464/958464 - 3445s - 4ms/step - loss: 0.0240 - mae: 0.0628 - mse: 0.0240 - val_loss: 0.0158 - val_mae: 0.0565 - val_mse: 0.0158
+Epoch 5/20
+958464/958464 - 3446s - 4ms/step - loss: 0.0240 - mae: 0.0628 - mse: 0.0240 - val_loss: 0.0158 - val_mae: 0.0565 - val_mse: 0.0158
+Epoch 6/20
+958464/958464 - 3449s - 4ms/step - loss: 0.0240 - mae: 0.0628 - mse: 0.0240 - val_loss: 0.0158 - val_mae: 0.0565 - val_mse: 0.0158
+Epoch 7/20
+958464/958464 - 3460s - 4ms/step - loss: 0.0240 - mae: 0.0628 - mse: 0.0240 - val_loss: 0.0158 - val_mae: 0.0565 - val_mse: 0.0158
+Epoch 8/20
+958464/958464 - 3442s - 4ms/step - loss: 0.0240 - mae: 0.0628 - mse: 0.0240 - val_loss: 0.0158 - val_mae: 0.0565 - val_mse: 0.0158
+Epoch 9/20
+958464/958464 - 3415s - 4ms/step - loss: 0.0240 - mae: 0.0628 - mse: 0.0240 - val_loss: 0.0158 - val_mae: 0.0565 - val_mse: 0.0158
+Epoch 10/20
+958464/958464 - 3413s - 4ms/step - loss: 0.0240 - mae: 0.0628 - mse: 0.0240 - val_loss: 0.0158 - val_mae: 0.0565 - val_mse: 0.0158
+Epoch 11/20
+958464/958464 - 3451s - 4ms/step - loss: 0.0240 - mae: 0.0628 - mse: 0.0240 - val_loss: 0.0158 - val_mae: 0.0565 - val_mse: 0.0158
+Epoch 12/20
+958464/958464 - 3430s - 4ms/step - loss: 0.0240 - mae: 0.0628 - mse: 0.0240 - val_loss: 0.0158 - val_mae: 0.0565 - val_mse: 0.0158
+Epoch 13/20
+958464/958464 - 3431s - 4ms/step - loss: 0.0240 - mae: 0.0628 - mse: 0.0240 - val_loss: 0.0158 - val_mae: 0.0565 - val_mse: 0.0158
+Epoch 14/20
+958464/958464 - 3434s - 4ms/step - loss: 0.0240 - mae: 0.0628 - mse: 0.0240 - val_loss: 0.0158 - val_mae: 0.0565 - val_mse: 0.0158
+Epoch 15/20
+958464/958464 - 3448s - 4ms/step - loss: 0.0240 - mae: 0.0628 - mse: 0.0240 - val_loss: 0.0158 - val_mae: 0.0565 - val_mse: 0.0158
+Epoch 16/20
+958464/958464 - 3480s - 4ms/step - loss: 0.0240 - mae: 0.0628 - mse: 0.0240 - val_loss: 0.0158 - val_mae: 0.0565 - val_mse: 0.0158
+Epoch 17/20
+958464/958464 - 3482s - 4ms/step - loss: 0.0240 - mae: 0.0628 - mse: 0.0240 - val_loss: 0.0158 - val_mae: 0.0565 - val_mse: 0.0158
+Epoch 18/20
+958464/958464 - 3462s - 4ms/step - loss: 0.0240 - mae: 0.0628 - mse: 0.0240 - val_loss: 0.0158 - val_mae: 0.0565 - val_mse: 0.0158
+Epoch 19/20
+958464/958464 - 3469s - 4ms/step - loss: 0.0240 - mae: 0.0628 - mse: 0.0240 - val_loss: 0.0158 - val_mae: 0.0565 - val_mse: 0.0158
+Epoch 20/20
+958464/958464 - 3465s - 4ms/step - loss: 0.0240 - mae: 0.0628 - mse: 0.0240 - val_loss: 0.0158 - val_mae: 0.0565 - val_mse: 0.0158
+/home/ethan.church/software/miniconda3/envs/gpu_tflow/lib/python3.11/site-packages/keras/src/activations/__init__.py:54: UserWarning: The object being serialized includes a `lambda`. This is unsafe. In order to reload the object, you will have to pass `safe_mode=False` to the loading function. Please avoid using `lambda` in the future, and use named Python functions instead. This is the `lambda` being serialized:     model.add(layers.Conv1D(filters=20, kernel_size=3, activation=lambda x: tf.nn.leaky_relu(x, alpha=0.01), padding='same', input_shape=(435,1), kernel_initializer=keras.initializers.HeNormal(), kernel_regularizer=keras.regularizers.l2(weight_decay)))
+
+  fn_config = serialization_lib.serialize_keras_object(activation)
+/home/ethan.church/software/miniconda3/envs/gpu_tflow/lib/python3.11/site-packages/keras/src/activations/__init__.py:54: UserWarning: The object being serialized includes a `lambda`. This is unsafe. In order to reload the object, you will have to pass `safe_mode=False` to the loading function. Please avoid using `lambda` in the future, and use named Python functions instead. This is the `lambda` being serialized:     model.add(layers.Conv1D(filters=40, kernel_size=3, activation=lambda x: tf.nn.leaky_relu(x, alpha=0.01), padding='same', kernel_initializer=keras.initializers.HeNormal(), kernel_regularizer=keras.regularizers.l2(weight_decay)))
+
+  fn_config = serialization_lib.serialize_keras_object(activation)
+/home/ethan.church/software/miniconda3/envs/gpu_tflow/lib/python3.11/site-packages/keras/src/activations/__init__.py:54: UserWarning: The object being serialized includes a `lambda`. This is unsafe. In order to reload the object, you will have to pass `safe_mode=False` to the loading function. Please avoid using `lambda` in the future, and use named Python functions instead. This is the `lambda` being serialized:     model.add(layers.Conv1D(filters=80, kernel_size=3, activation=lambda x: tf.nn.leaky_relu(x, alpha=0.01), padding='same', kernel_initializer=keras.initializers.HeNormal(), kernel_regularizer=keras.regularizers.l2(weight_decay)))
+
+  fn_config = serialization_lib.serialize_keras_object(activation)
+/home/ethan.church/software/miniconda3/envs/gpu_tflow/lib/python3.11/site-packages/keras/src/activations/__init__.py:54: UserWarning: The object being serialized includes a `lambda`. This is unsafe. In order to reload the object, you will have to pass `safe_mode=False` to the loading function. Please avoid using `lambda` in the future, and use named Python functions instead. This is the `lambda` being serialized:     model.add(layers.Conv1D(filters=160, kernel_size=3, activation=lambda x: tf.nn.leaky_relu(x, alpha=0.01), padding='same', kernel_initializer=keras.initializers.HeNormal(), kernel_regularizer=keras.regularizers.l2(weight_decay)))
+
+  fn_config = serialization_lib.serialize_keras_object(activation)
+/home/ethan.church/software/miniconda3/envs/gpu_tflow/lib/python3.11/site-packages/keras/src/activations/__init__.py:54: UserWarning: The object being serialized includes a `lambda`. This is unsafe. In order to reload the object, you will have to pass `safe_mode=False` to the loading function. Please avoid using `lambda` in the future, and use named Python functions instead. This is the `lambda` being serialized:     model.add(layers.Conv1D(filters=320, kernel_size=3, activation=lambda x: tf.nn.leaky_relu(x, alpha=0.01), padding='same', kernel_initializer=keras.initializers.HeNormal(), kernel_regularizer=keras.regularizers.l2(weight_decay)))
+
+  fn_config = serialization_lib.serialize_keras_object(activation)

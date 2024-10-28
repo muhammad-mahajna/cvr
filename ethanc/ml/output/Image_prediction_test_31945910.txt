@@ -1,0 +1,95 @@
+2024-08-21 09:26:12.723070: I tensorflow/core/util/port.cc:153] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable `TF_ENABLE_ONEDNN_OPTS=0`.
+2024-08-21 09:26:13.556319: E external/local_xla/xla/stream_executor/cuda/cuda_fft.cc:485] Unable to register cuFFT factory: Attempting to register factory for plugin cuFFT when one has already been registered
+2024-08-21 09:26:13.778015: E external/local_xla/xla/stream_executor/cuda/cuda_dnn.cc:8454] Unable to register cuDNN factory: Attempting to register factory for plugin cuDNN when one has already been registered
+2024-08-21 09:26:13.860706: E external/local_xla/xla/stream_executor/cuda/cuda_blas.cc:1452] Unable to register cuBLAS factory: Attempting to register factory for plugin cuBLAS when one has already been registered
+2024-08-21 09:26:14.352034: I tensorflow/core/platform/cpu_feature_guard.cc:210] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.
+To enable the following instructions: AVX2 AVX512F AVX512_VNNI FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.
+2024-08-21 09:26:17.545742: W tensorflow/compiler/tf2tensorrt/utils/py_utils.cc:38] TF-TRT Warning: Could not find TensorRT
+/home/ethan.church/software/miniconda3/envs/gpu_tflow/lib/python3.11/site-packages/keras/src/layers/activations/leaky_relu.py:41: UserWarning: Argument `alpha` is deprecated. Use `negative_slope` instead.
+  warnings.warn(
+/home/ethan.church/software/miniconda3/envs/gpu_tflow/lib/python3.11/site-packages/keras/src/layers/convolutional/base_conv.py:107: UserWarning: Do not pass an `input_shape`/`input_dim` argument to a layer. When using Sequential models, prefer using an `Input(shape)` object as the first layer in the model instead.
+  super().__init__(activity_regularizer=activity_regularizer, **kwargs)
+starting loading in the data
+finished loading in data
+reshaping the data
+(1, 435, 1)
+making a dataset
+getting a validation sample
+finished splitting the validation
+Model: "sequential"
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━┓
+┃ Layer (type)                    ┃ Output Shape           ┃       Param # ┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━┩
+│ conv1d (Conv1D)                 │ (None, 435, 20)        │            80 │
+├─────────────────────────────────┼────────────────────────┼───────────────┤
+│ batch_normalization             │ (None, 435, 20)        │            80 │
+│ (BatchNormalization)            │                        │               │
+├─────────────────────────────────┼────────────────────────┼───────────────┤
+│ max_pooling1d (MaxPooling1D)    │ (None, 217, 20)        │             0 │
+├─────────────────────────────────┼────────────────────────┼───────────────┤
+│ conv1d_1 (Conv1D)               │ (None, 217, 40)        │         2,440 │
+├─────────────────────────────────┼────────────────────────┼───────────────┤
+│ max_pooling1d_1 (MaxPooling1D)  │ (None, 108, 40)        │             0 │
+├─────────────────────────────────┼────────────────────────┼───────────────┤
+│ dropout (Dropout)               │ (None, 108, 40)        │             0 │
+├─────────────────────────────────┼────────────────────────┼───────────────┤
+│ conv1d_2 (Conv1D)               │ (None, 108, 80)        │         9,680 │
+├─────────────────────────────────┼────────────────────────┼───────────────┤
+│ batch_normalization_1           │ (None, 108, 80)        │           320 │
+│ (BatchNormalization)            │                        │               │
+├─────────────────────────────────┼────────────────────────┼───────────────┤
+│ max_pooling1d_2 (MaxPooling1D)  │ (None, 54, 80)         │             0 │
+├─────────────────────────────────┼────────────────────────┼───────────────┤
+│ conv1d_3 (Conv1D)               │ (None, 54, 160)        │        38,560 │
+├─────────────────────────────────┼────────────────────────┼───────────────┤
+│ batch_normalization_2           │ (None, 54, 160)        │           640 │
+│ (BatchNormalization)            │                        │               │
+├─────────────────────────────────┼────────────────────────┼───────────────┤
+│ max_pooling1d_3 (MaxPooling1D)  │ (None, 27, 160)        │             0 │
+├─────────────────────────────────┼────────────────────────┼───────────────┤
+│ dropout_1 (Dropout)             │ (None, 27, 160)        │             0 │
+├─────────────────────────────────┼────────────────────────┼───────────────┤
+│ conv1d_4 (Conv1D)               │ (None, 27, 320)        │       153,920 │
+├─────────────────────────────────┼────────────────────────┼───────────────┤
+│ batch_normalization_3           │ (None, 27, 320)        │         1,280 │
+│ (BatchNormalization)            │                        │               │
+├─────────────────────────────────┼────────────────────────┼───────────────┤
+│ max_pooling1d_4 (MaxPooling1D)  │ (None, 13, 320)        │             0 │
+├─────────────────────────────────┼────────────────────────┼───────────────┤
+│ flatten (Flatten)               │ (None, 4160)           │             0 │
+├─────────────────────────────────┼────────────────────────┼───────────────┤
+│ dropout_2 (Dropout)             │ (None, 4160)           │             0 │
+├─────────────────────────────────┼────────────────────────┼───────────────┤
+│ dense (Dense)                   │ (None, 1)              │         4,161 │
+└─────────────────────────────────┴────────────────────────┴───────────────┘
+ Total params: 211,161 (824.85 KB)
+ Trainable params: 210,001 (820.32 KB)
+ Non-trainable params: 1,160 (4.53 KB)
+Epoch 1/5
+958464/958464 - 3015s - 3ms/step - loss: 0.0550 - mae: 0.0760 - mse: 0.0466 - val_loss: 0.0158 - val_mae: 0.0565 - val_mse: 0.0158
+Epoch 2/5
+958464/958464 - 2977s - 3ms/step - loss: 0.0240 - mae: 0.0628 - mse: 0.0240 - val_loss: 0.0158 - val_mae: 0.0565 - val_mse: 0.0158
+Epoch 3/5
+958464/958464 - 2950s - 3ms/step - loss: 0.0240 - mae: 0.0628 - mse: 0.0240 - val_loss: 0.0158 - val_mae: 0.0565 - val_mse: 0.0158
+Epoch 4/5
+958464/958464 - 3089s - 3ms/step - loss: 0.0240 - mae: 0.0628 - mse: 0.0240 - val_loss: 0.0158 - val_mae: 0.0565 - val_mse: 0.0158
+Epoch 5/5
+958464/958464 - 3099s - 3ms/step - loss: 0.0240 - mae: 0.0628 - mse: 0.0240 - val_loss: 0.0158 - val_mae: 0.0565 - val_mse: 0.0158
+making a predicted image on the validation data
+want shape to be (64x64x26,435) actual shape was (106496, 1, 435, 1)
+Traceback (most recent call last):
+  File "/home/ethan.church/pre_ml/ml/Predict_image_model.py", line 120, in <module>
+    predictions = model.predict(actual_in,batch_size=32,verbose=2)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ethan.church/software/miniconda3/envs/gpu_tflow/lib/python3.11/site-packages/keras/src/utils/traceback_utils.py", line 122, in error_handler
+    raise e.with_traceback(filtered_tb) from None
+  File "/home/ethan.church/software/miniconda3/envs/gpu_tflow/lib/python3.11/site-packages/keras/src/layers/input_spec.py", line 227, in assert_input_compatibility
+    raise ValueError(
+ValueError: Exception encountered when calling Sequential.call().
+
+[1mInput 0 of layer "conv1d" is incompatible with the layer: expected axis -1 of input shape to have value 1, but received input with shape (32, 1, 435)[0m
+
+Arguments received by Sequential.call():
+  • inputs=tf.Tensor(shape=(32, 1, 435, 1), dtype=float32)
+  • training=False
+  • mask=None

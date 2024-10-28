@@ -1,0 +1,72 @@
+2024-08-13 09:44:36.412443: I tensorflow/core/util/port.cc:153] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable `TF_ENABLE_ONEDNN_OPTS=0`.
+2024-08-13 09:44:37.485051: E external/local_xla/xla/stream_executor/cuda/cuda_fft.cc:485] Unable to register cuFFT factory: Attempting to register factory for plugin cuFFT when one has already been registered
+2024-08-13 09:44:37.797996: E external/local_xla/xla/stream_executor/cuda/cuda_dnn.cc:8454] Unable to register cuDNN factory: Attempting to register factory for plugin cuDNN when one has already been registered
+2024-08-13 09:44:37.889104: E external/local_xla/xla/stream_executor/cuda/cuda_blas.cc:1452] Unable to register cuBLAS factory: Attempting to register factory for plugin cuBLAS when one has already been registered
+2024-08-13 09:44:38.435105: I tensorflow/core/platform/cpu_feature_guard.cc:210] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.
+To enable the following instructions: AVX2 AVX512F AVX512_VNNI FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.
+2024-08-13 09:44:41.429706: W tensorflow/compiler/tf2tensorrt/utils/py_utils.cc:38] TF-TRT Warning: Could not find TensorRT
+Model: "sequential"
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━┓
+┃ Layer (type)                    ┃ Output Shape           ┃       Param # ┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━┩
+│ separable_conv1d                │ (None, 435, 20)        │            43 │
+│ (SeparableConv1D)               │                        │               │
+├─────────────────────────────────┼────────────────────────┼───────────────┤
+│ batch_normalization             │ (None, 435, 20)        │            80 │
+│ (BatchNormalization)            │                        │               │
+├─────────────────────────────────┼────────────────────────┼───────────────┤
+│ max_pooling1d (MaxPooling1D)    │ (None, 217, 20)        │             0 │
+├─────────────────────────────────┼────────────────────────┼───────────────┤
+│ separable_conv1d_1              │ (None, 217, 40)        │           900 │
+│ (SeparableConv1D)               │                        │               │
+├─────────────────────────────────┼────────────────────────┼───────────────┤
+│ batch_normalization_1           │ (None, 217, 40)        │           160 │
+│ (BatchNormalization)            │                        │               │
+├─────────────────────────────────┼────────────────────────┼───────────────┤
+│ max_pooling1d_1 (MaxPooling1D)  │ (None, 108, 40)        │             0 │
+├─────────────────────────────────┼────────────────────────┼───────────────┤
+│ separable_conv1d_2              │ (None, 108, 80)        │         3,400 │
+│ (SeparableConv1D)               │                        │               │
+├─────────────────────────────────┼────────────────────────┼───────────────┤
+│ batch_normalization_2           │ (None, 108, 80)        │           320 │
+│ (BatchNormalization)            │                        │               │
+├─────────────────────────────────┼────────────────────────┼───────────────┤
+│ max_pooling1d_2 (MaxPooling1D)  │ (None, 54, 80)         │             0 │
+├─────────────────────────────────┼────────────────────────┼───────────────┤
+│ separable_conv1d_3              │ (None, 54, 120)        │         9,960 │
+│ (SeparableConv1D)               │                        │               │
+├─────────────────────────────────┼────────────────────────┼───────────────┤
+│ batch_normalization_3           │ (None, 54, 120)        │           480 │
+│ (BatchNormalization)            │                        │               │
+├─────────────────────────────────┼────────────────────────┼───────────────┤
+│ max_pooling1d_3 (MaxPooling1D)  │ (None, 27, 120)        │             0 │
+├─────────────────────────────────┼────────────────────────┼───────────────┤
+│ separable_conv1d_4              │ (None, 27, 240)        │        29,400 │
+│ (SeparableConv1D)               │                        │               │
+├─────────────────────────────────┼────────────────────────┼───────────────┤
+│ batch_normalization_4           │ (None, 27, 240)        │           960 │
+│ (BatchNormalization)            │                        │               │
+├─────────────────────────────────┼────────────────────────┼───────────────┤
+│ max_pooling1d_4 (MaxPooling1D)  │ (None, 13, 240)        │             0 │
+├─────────────────────────────────┼────────────────────────┼───────────────┤
+│ flatten (Flatten)               │ (None, 3120)           │             0 │
+├─────────────────────────────────┼────────────────────────┼───────────────┤
+│ dropout (Dropout)               │ (None, 3120)           │             0 │
+├─────────────────────────────────┼────────────────────────┼───────────────┤
+│ dense (Dense)                   │ (None, 1)              │         3,121 │
+└─────────────────────────────────┴────────────────────────┴───────────────┘
+ Total params: 48,824 (190.72 KB)
+ Trainable params: 47,824 (186.81 KB)
+ Non-trainable params: 1,000 (3.91 KB)
+Epoch 1/15
+10116120/10116120 - 42964s - 4ms/step - loss: 0.0131 - mse: 0.0131 - val_loss: 4.5850e-06 - val_mse: 4.5850e-06
+Epoch 2/15
+10116120/10116120 - 43166s - 4ms/step - loss: 0.0118 - mse: 0.0118 - val_loss: 4.5827e-09 - val_mse: 4.5827e-09
+Epoch 3/15
+10116120/10116120 - 43110s - 4ms/step - loss: 0.0118 - mse: 0.0118 - val_loss: 1.0380e-04 - val_mse: 1.0380e-04
+Epoch 4/15
+10116120/10116120 - 42688s - 4ms/step - loss: 0.0118 - mse: 0.0118 - val_loss: 4.3417e-06 - val_mse: 4.3417e-06
+Epoch 5/15
+10116120/10116120 - 43305s - 4ms/step - loss: 0.0118 - mse: 0.0118 - val_loss: 1.2924e-05 - val_mse: 1.2924e-05
+Epoch 6/15
+slurmstepd: error: *** JOB 31786058 ON mc111 CANCELLED AT 2024-08-16T09:44:43 DUE TO TIME LIMIT ***

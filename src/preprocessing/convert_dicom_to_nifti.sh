@@ -34,7 +34,7 @@ for subject_path in "$BASE_DIR"/*; do
         subject_name=$(basename "$subject_path")
         
         # Define the expected NIfTI output file path
-        output_nifti_file="$NIFTI_DIR/${subject_name}.nii"
+        output_nifti_file="$NIFTI_DIR/${subject_name}.nii.gz"
 
         # Check if the NIfTI file already exists
         if [ -f "$output_nifti_file" ]; then
@@ -43,7 +43,7 @@ for subject_path in "$BASE_DIR"/*; do
         fi
         
         # Find the specified subfolder within the subject's directory
-        target_folder=$(find "$subject_path" -type d -name "*$SEARCH_TERM" | head -n 1)
+        target_folder=$(find "$subject_path" -type d -name "*$SEARCH_TERM*" | head -n 1)
 
         if [ -z "$target_folder" ]; then
             echo "Warning: No '$SEARCH_TERM' folder found for subject $subject_name. Skipping."
@@ -53,7 +53,7 @@ for subject_path in "$BASE_DIR"/*; do
         echo "Converting DICOM files for subject $subject_name from $target_folder..."
 
         # Run conversion using dcm2niix and name output file after subject ID
-        dcm2niix -f "${subject_name}" -o "$NIFTI_DIR" "$target_folder"
+        dcm2niix -z y -f "${subject_name}" -o "$NIFTI_DIR" "$target_folder"
         
         # Check if the conversion was successful
         if [ $? -eq 0 ]; then

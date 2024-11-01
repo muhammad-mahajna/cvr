@@ -14,14 +14,8 @@ fi
 BASE_DIR="$1"
 SUBJECT_ID="$2"
 
-# Detect system and set MNI template and atlas path based on environment
-if [[ "$HOSTNAME" == "arc" ]]; then
-    FSL_DIR="/home/muhammad.mahajna/workspace/software/fsl"
-else
-    FSL_DIR="/Users/muhammadmahajna/workspace/software/fsl"
-fi
-MNI_TEMPLATE="${FSL_DIR}/data/standard/MNI152_T1_1mm.nii.gz"
-ATLAS_ROI_PATH="${FSL_DIR}/data/atlases/HarvardOxford/HarvardOxford-cort-maxprob-thr50-1mm.nii.gz"
+MNI_TEMPLATE="${FSLDIR}/data/standard/MNI152_T1_1mm.nii.gz"
+ATLAS_ROI_PATH="${FSLDIR}/data/atlases/HarvardOxford/HarvardOxford-cort-maxprob-thr50-1mm.nii.gz"
 
 # Function to normalize and extract ROI time series for a single subject
 normalize_and_extract_roi() {

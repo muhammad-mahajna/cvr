@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # Example Usage:
-# ./batch_preprocess_fmri_anat.sh /path/to/input /path/to/output SUBJECT001 SUBJECT002
-# ./batch_preprocess_fmri_anat.sh /path/to/input /path/to/output all
+# ./preprocess_fmri_anatomical.sh /path/to/input /path/to/output SUBJECT001 SUBJECT002
+# ./preprocess_fmri_anatomical.sh /path/to/input /path/to/output all
 
 # Check if the correct number of arguments is provided
 if [ "$#" -lt 3 ]; then

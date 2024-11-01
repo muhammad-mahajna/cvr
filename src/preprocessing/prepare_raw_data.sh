@@ -20,4 +20,6 @@ echo "Convert T1 images from DICOM to NIFTII format"
 
 echo "2. Prepare reference CVR maps"
 
-echo "3. Upload rsBOLD images and CVR maps to the cluster"
+echo "3. Upload rsBOLD images, T1 imagws and and CVR maps to the cluster"
+
+scp -r $BASE_DIR muhammad.mahajna@arc.ucalgary.ca:/home/muhammad.mahajna/workspace/research/data/cvr

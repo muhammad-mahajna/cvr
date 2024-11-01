@@ -16,10 +16,12 @@ SUBJECT_ID="$2"
 
 # Detect system and set MNI template path based on environment
 if [[ "$HOSTNAME" == "arc" ]]; then
-    MNI_TEMPLATE="/home/muhammad.mahajna/workspace/software/fsl/data/standard/MNI152_T1_1mm.nii.gz"
+    FSL_DIR="/home/muhammad.mahajna/workspace/software/fsl"
 else
-    MNI_TEMPLATE="/Users/muhammadmahajna/workspace/software/fsl/data/standard/MNI152_T1_1mm.nii.gz"
+    FSL_DIR="/Users/muhammadmahajna/workspace/software/fsl"
 fi
+MNI_TEMPLATE="${FSL_DIR}/data/standard/MNI152_T1_1mm.nii.gz"
+
 
 # Function to prepare and register data for a single subject
 prepare_and_register_subject() {

@@ -1,44 +1,91 @@
 #!/bin/bash
-# (Formerly testfull.sh)
 
-# Configurable base directory
-BASE_DIR="$HOME/TestData"
-TEMPLATE_DIR="$BASE_DIR/templates"
-ATLAS_DIR="$BASE_DIR/atlas"
+# Example usage:
+# ./normalize_and_extract_roi.sh /data/project1 SUBJECT001
+# ./normalize_and_extract_roi.sh /data/project1 all
 
-# Loop through subject IDs
-for number in $(seq -w 1 200); do
-    subject="sub-$number"
-    
-    echo "Starting preprocessing for $subject"
-    
-    anatomical="${subject}_T1w.nii.gz"
-    functional="${subject}_run1.nii.gz"
+# Check if the correct number of arguments is provided
+if [ "$#" -ne 2 ]; then
+    echo "Usage: $0 <base_directory> <subject_id> or 'all' to process all subjects"
+    exit 1
+fi
 
-    # Skull stripping the anatomical image
-    if [[ ! -f "${subject}_T1w_brain.nii.gz" ]]; then
-        bet2 "$anatomical" "${subject}_T1w_brain.nii.gz" -f 0.5
+# Configurable base directories
+BASE_DIR="$1"
+SUBJECT_ID="$2"
+
+# Detect system and set MNI template and atlas path based on environment
+if [[ "$HOSTNAME" == "arc" ]]; then
+    FSL_DIR="/home/muhammad.mahajna/workspace/software/fsl"
+else
+    FSL_DIR="/Users/muhammadmahajna/workspace/software/fsl"
+fi
+MNI_TEMPLATE="${FSL_DIR}/data/standard/MNI152_T1_1mm.nii.gz"
+ATLAS_ROI_PATH="${FSL_DIR}/data/atlases/HarvardOxford/HarvardOxford-cort-maxprob-thr50-1mm.nii.gz"
+
+# Function to normalize and extract ROI time series for a single subject
+normalize_and_extract_roi() {
+    SUBJECT_ID="$1"
+    PREPROCESSING_DIR="$BASE_DIR/$SUBJECT_ID/preprocessing_results"
+    ANTS_RESULTS_DIR="$BASE_DIR/$SUBJECT_ID/ants_results"
+    OUTPUT_DIR="$BASE_DIR/$SUBJECT_ID/roi_results"
+    LOG_FILE="$OUTPUT_DIR/${SUBJECT_ID}_roi_log.txt"
+
+    # Ensure that the output directory exists
+    mkdir -p "$OUTPUT_DIR"
+
+    # Define paths to the required input files
+    T1_IMAGE="$ANTS_RESULTS_DIR/${SUBJECT_ID}_ants_Warped.nii.gz"  # Normalized T1 image from ants_results
+    FMRI_IMAGE="$PREPROCESSING_DIR/rsBOLD_field_corrected.nii.gz"  # Field-corrected fMRI from preprocessing_results
+
+    # Check if the required input files are available
+    if [ ! -f "$T1_IMAGE" ]; then
+        echo "Warped T1 image not found for subject $SUBJECT_ID: $T1_IMAGE" | tee -a "$LOG_FILE"
+        return 1
+    fi
+    if [ ! -f "$FMRI_IMAGE" ]; then
+        echo "Field-corrected fMRI image not found for subject $SUBJECT_ID: $FMRI_IMAGE" | tee -a "$LOG_FILE"
+        return 1
     fi
 
-    # Motion correction for functional image
-    mcflirt -in "$functional" -ref SBref
+    # Initialize log file
+    echo "Starting ROI extraction for subject $SUBJECT_ID at $(date)" > "$LOG_FILE"
 
-    # Topup correction for susceptibility distortions
-    fslmerge -t AP_PA_image A_P P_A
-    topup --imain=AP_PA_image --datain=acq_params.txt --config=b02b0.cnf --out=topup_results
-    applytopup --imain="$functional" --inindex=1 --topup=topup_results --datain=acq_params.txt --method=jac --out=DC_functional
+    # Apply T1-to-MNI transformation to fMRI data
+    echo "Applying normalization to MNI space for subject $SUBJECT_ID..." | tee -a "$LOG_FILE"
+    antsApplyTransforms -d 3 -e 3 -i "$FMRI_IMAGE" -r "$MNI_TEMPLATE" \
+        -o "$OUTPUT_DIR/${SUBJECT_ID}_fMRI_normalized.nii.gz" \
+        -t "$ANTS_RESULTS_DIR/${SUBJECT_ID}_ants_1Warp.nii.gz" \
+        -t "$ANTS_RESULTS_DIR/${SUBJECT_ID}_ants_0GenericAffine.mat" \
+        -v 2>> "$LOG_FILE"
 
-    # Normalization using ANTs
-    antsRegistrationSyNQuick.sh -d 3 -f "${subject}_T1w_brain.nii.gz" -m DC_functional -o func_to_anat
-    antsRegistrationSyNQuick.sh -d 3 -f "$TEMPLATE_DIR/template.nii.gz" -m "${subject}_T1w_brain.nii.gz" -o anat_to_template
-    antsApplyTransforms -d 3 -i func_to_anat -r "$TEMPLATE_DIR/template.nii.gz" -o func_to_template \
-        -t anat_to_template_1Warp.nii.gz -t anat_to_template_GenericAffine.mat -n NearestNeighbor
+    # Check if antsApplyTransforms succeeded
+    if [ $? -ne 0 ]; then
+        echo "Error during fMRI normalization for $SUBJECT_ID. Exiting." | tee -a "$LOG_FILE"
+        return 1
+    fi
 
-    # Extract ROI data
-    mkdir -p ROI
-    for mask in $ATLAS_DIR/*; do
-        fslmeants -i func_to_template -o ROI/output_${mask}.txt -m "$mask"
+    # Extract ROI time series from the normalized fMRI data
+    echo "Extracting ROI time series for subject $SUBJECT_ID..." | tee -a "$LOG_FILE"
+    fslmeants -i "$OUTPUT_DIR/${SUBJECT_ID}_fMRI_normalized.nii.gz" \
+              -m "$ATLAS_ROI_PATH" -o "$OUTPUT_DIR/${SUBJECT_ID}_roi_timeseries.txt" \
+              || { echo "Error during ROI extraction for $SUBJECT_ID" | tee -a "$LOG_FILE"; return 1; }
+
+    echo "ROI extraction complete for subject $SUBJECT_ID at $(date)" | tee -a "$LOG_FILE"
+}
+
+# Process all subjects or a specific subject
+if [ "$SUBJECT_ID" == "all" ]; then
+    for SUBJECT_DIR in "$BASE_DIR"/preprocessing_results/*; do
+        if [ -d "$SUBJECT_DIR" ]; then
+            CURRENT_SUBJECT_ID=$(basename "$SUBJECT_DIR")
+            normalize_and_extract_roi "$CURRENT_SUBJECT_ID" || {
+                echo "Error processing subject $CURRENT_SUBJECT_ID"
+                exit 1
+            }
+        fi
     done
-
-    echo "Processing complete for $subject"
-done
+else
+    # Process a single subject
+    normalize_and_extract_roi "$SUBJECT_ID"
+fi

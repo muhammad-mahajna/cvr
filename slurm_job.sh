@@ -11,9 +11,14 @@
 #SBATCH --output=OutputFromMyFirstJob_%j.out
 #SBATCH --error=ErrorFromMyFirstJob_%j.err    # Standard error
 
-sleep 10s
+sleep 1s
 echo Hello World
-echo Starting model training
-python mnist_basic_example.py
+
+
+IN_BASE_DIR="../../../../data/cvr"
+OUTPUT_BASE_DIR=$IN_BASE_DIR
+
+./preprocess_fmri_anatomical.sh $IN_BASE_DIR $OUTPUT_BASE_DIR 19797-20220304-SF_01033
+
 
 echo Finished model training

@@ -1,5 +1,5 @@
 
-# Pipeline for preparing raw data 
+# Pipeline for preparing raw data - Converting DICOM images to NIFTII
 # Do that locally since the files are not available on the cluster
 # You can run each one of the following scripts separatly to speed things up
 

@@ -24,7 +24,7 @@ preprocess_subject() {
     INPUT_RS_BOLD_Flip="$IN_BASE_DIR/${SUBJECT_ID}/rsBOLD_ET_Flip/${SUBJECT_ID}_rsBOLD_ET_Flip.nii.gz"
     INPUT_T1="$IN_BASE_DIR/${SUBJECT_ID}/T1/${SUBJECT_ID}_T1.nii.gz"
     
-    OUTPUT_DIR="$OUTPUT_BASE_DIR/preprocessing_results/$SUBJECT_ID"
+    OUTPUT_DIR="$OUTPUT_BASE_DIR/$SUBJECT_ID/preprocessing_results"
 
     # Check if required NIfTI files exist
     if [ ! -f "$INPUT_RS_BOLD" ]; then

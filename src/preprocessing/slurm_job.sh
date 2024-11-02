@@ -3,7 +3,7 @@
 #SBATCH --ntasks-per-node=1
 #SBATCH --cpus-per-task=4
 #SBATCH --time=00:30:00
-#SBATCH --mem=48GB
+#SBATCH --mem=128GB
 #SBATCH --job-name=MyFirstJobOnARC
 ##SBATCH --partition=cpu2023
 #SBATCH --mail-type=END

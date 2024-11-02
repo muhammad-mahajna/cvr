@@ -14,6 +14,8 @@
 sleep 1s
 echo Hello World
 
+eval "$(~/miniconda3/bin/conda shell.bash hook)"
+
 conda activate cvr_env
 
 IN_BASE_DIR="../../../../data/cvr"

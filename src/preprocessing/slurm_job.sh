@@ -1,15 +1,15 @@
 #!/bin/zsh
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
-#SBATCH --cpus-per-task=4
-#SBATCH --time=00:30:00
+#SBATCH --cpus-per-task=2
+#SBATCH --time=02:00:00
 #SBATCH --mem=128GB
-#SBATCH --job-name=MyFirstJobOnARC
+#SBATCH --job-name=CVR
 ##SBATCH --partition=cpu2023
 #SBATCH --mail-type=END
 #SBATCH --mail-user=muhammad.mahajna@ucalgary.ca
-#SBATCH --output=OutputFromMyFirstJob_%j.out
-#SBATCH --error=ErrorFromMyFirstJob_%j.err    # Standard error
+#SBATCH --output=OutputFromMyCVRJob_%j.out
+#SBATCH --error=ErrorFromMyCVRJob_%j.err    # Standard error
 
 sleep 1s
 echo Hello World

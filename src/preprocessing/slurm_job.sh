@@ -14,6 +14,7 @@
 sleep 1s
 echo Hello World
 
+conda activate cvr_env
 
 IN_BASE_DIR="../../../../data/cvr"
 OUTPUT_BASE_DIR=$IN_BASE_DIR

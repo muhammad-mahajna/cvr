@@ -1,11 +1,11 @@
 #!/bin/zsh
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
-#SBATCH --cpus-per-task=2
+#SBATCH --cpus-per-task=1
 #SBATCH --time=02:00:00
-#SBATCH --mem=128GB
+#SBATCH --mem=80GB
 #SBATCH --job-name=CVR
-##SBATCH --partition=cpu2023
+#SBATCH --partition=cpu2023
 #SBATCH --mail-type=END
 #SBATCH --mail-user=muhammad.mahajna@ucalgary.ca
 #SBATCH --output=OutputFromMyCVRJob_%j.out
@@ -16,6 +16,8 @@ echo Hi, lets start working...
 # Define base directories
 IN_BASE_DIR="../../../../data/cvr"
 OUTPUT_BASE_DIR=$IN_BASE_DIR
+
+echo Load Conda Env and get things ready
 
 # Load the conda environment
 eval "$(~/miniconda3/bin/conda shell.bash hook)"

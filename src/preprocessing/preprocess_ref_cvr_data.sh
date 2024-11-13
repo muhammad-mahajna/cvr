@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# This script should not be used, the data is provided in CVR_MAPS
+
 # Example Usage:
 # ./preprocess_ref_cvr_data.sh /path/to/input /path/to/output SUBJECT001 SUBJECT002
 # ./preprocess_ref_cvr_data.sh /path/to/input /path/to/output all

@@ -1,9 +1,5 @@
 #!/bin/bash
 # Script to convert DICOM files to NIfTI format for multiple subjects using dcm2niix.
-# This script finds each subject’s specified subfolder and converts its DICOM files to NIfTI.
-
-# Run this command to make the script executable: 
-# chmod +x ./convert_dicom_to_nifti.sh
 
 # Check if the correct number of arguments is provided
 if [ "$#" -ne 5 ]; then
@@ -12,11 +8,11 @@ if [ "$#" -ne 5 ]; then
 fi
 
 # Define input parameters
-BASE_DICOM_DIR="$1"      # Base directory where all subject folders are located
-NIFTI_BASE_DIR="$2"     # Directory where the converted NIfTI files will be saved
-OUT_SUB_DIR="$3"     # Directory where the converted NIfTI files will be saved
-SEARCH_TERM="$4"   # Subfolder name to search for within each subject folder
-FILE_SUFFIX="$5"   # Subfolder name to search for within each subject folder
+BASE_DICOM_DIR="$1"
+NIFTI_BASE_DIR="$2"
+OUT_SUB_DIR="$3"
+SEARCH_TERM="$4"
+FILE_SUFFIX="$5"
 
 # Log the input parameters for reference
 echo "Base directory (DICOM): $BASE_DICOM_DIR"
@@ -34,7 +30,8 @@ echo "Conversion started at: $START_TIME"
 # Convert DICOM files to NIfTI format for each subject's specified subfolder
 for subject_path in "$BASE_DICOM_DIR"/*; do
     if [ -d "$subject_path" ]; then
-        subject_name=$(basename "$subject_path")
+        # Extract subject_name by removing the '*-' prefix and standardizing format
+        subject_name=$(basename "$subject_path" | sed -E 's/.*-(SF|sf)_?([0-9]+)/SF_\2/' | tr '[:lower:]' '[:upper:]')
         
         # Define the expected NIfTI output file path
         output_nifti_file="$NIFTI_BASE_DIR/$subject_name/$OUT_SUB_DIR/${subject_name}_${FILE_SUFFIX}.nii.gz"

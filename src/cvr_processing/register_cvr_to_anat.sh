@@ -2,7 +2,7 @@
 
 # Check if correct number of arguments is provided
 if [ "$#" -ne 2 ]; then
-    echo "Usage: $0 <BASE_DIR> <subject_id> or 'all' to process all subjects"
+    echo "Usage: $0 <BASE_DIR> <SUBJECT_ID> or 'all' to process all subjects"
     exit 1
 fi
 
@@ -15,48 +15,78 @@ OUTPUT_DIR_SUFFIX="registered"
 
 # Function to process a single subject
 process_subject() {
-    local subject_id="$1"
-    local input_dir="$BASE_DIR/$subject_id/CVR_MAPS/Thresholded"
-    local subject_output_dir="$BASE_DIR/$subject_id/CVR_MAPS/$OUTPUT_DIR_SUFFIX"
+    local SUBJECT_ID="$1"
+    local INPUT_DIR="$BASE_DIR/$SUBJECT_ID/CVR_MAPS/Thresholded"
+    local OUTPUT_DIR="$BASE_DIR/$SUBJECT_ID/CVR_MAPS/$OUTPUT_DIR_SUFFIX"
     
     # Find the thresholded CVR map for the subject
-    cvr_map=$(find "$input_dir" -name "${subject_id}_BOLD_CVR_resized_thresholded.nii.gz" 2>/dev/null)
-    if [ -z "$cvr_map" ]; then
-        echo "Warning: Thresholded CVR map not found for subject $subject_id in $input_dir. Skipping."
-        echo $cvr_map
+    CVR_MAP=$(find "$INPUT_DIR" -name "${SUBJECT_ID}_BOLD_CVR_resized_thresholded.nii.gz" 2>/dev/null)
+    if [ -z "$CVR_MAP" ]; then
+        echo "Warning: Thresholded CVR map not found for subject $SUBJECT_ID in $INPUT_DIR. Skipping."
+        echo $CVR_MAP
         return 1
     fi
 
     # Create output directory if it doesn't exist
-    echo "Setting up output directory for subject $subject_id at: $subject_output_dir"
-    mkdir -p "$subject_output_dir"
+    echo "Setting up output directory for subject $SUBJECT_ID at: $OUTPUT_DIR"
+    mkdir -p "$OUTPUT_DIR"
 
     echo "-----------------------------------------"
-    echo "Registering CVR map for subject: $subject_id"
+    echo "Registering CVR map for subject: $SUBJECT_ID"
 
     # Define paths to T1 image and output prefix
-    T1_IMAGE="$BASE_DIR/$subject_id/T1/${subject_id}_T1.nii.gz"
-    OUTPUT_PREFIX="$subject_output_dir/${subject_id}_CVR_registered_"
+    T1_IMAGE="$BASE_DIR/$SUBJECT_ID/preprocessing_results/${SUBJECT_ID}_strip.nii.gz"
+    OUTPUT_PREFIX="$OUTPUT_DIR/${SUBJECT_ID}_CVR_registered_"
 
     # Check if T1-weighted image exists
     if [ ! -f "$T1_IMAGE" ]; then
-        echo "Warning: T1-weighted image for subject $subject_id not found at $T1_IMAGE. Skipping."
+        echo "Warning: T1-weighted image for subject $SUBJECT_ID not found at $T1_IMAGE. Skipping."
         return 1
     fi
 
     echo "Using T1-weighted image: $T1_IMAGE"
-    echo "Using CVR map: $cvr_map"
+    echo "Using CVR map: $CVR_MAP"
 
     # Run ANTs registration
-    echo "Running ANTs registration for subject $subject_id..."
-    antsRegistrationSyNQuick.sh -d 3 -f "$T1_IMAGE" -m "$cvr_map" -o "$OUTPUT_PREFIX"
+    echo "Running ANTs registration for subject $SUBJECT_ID..."
+    antsRegistrationSyNQuick.sh -d 3 -f "$T1_IMAGE" -m "$CVR_MAP" -o "$OUTPUT_PREFIX" -t r
+
+    FIRST_FRAME_IMAGE="$BASE_DIR/$SUBJECT_ID/ants_results/${SUBJECT_ID}_first_frame.nii.gz"
+    AFFINE="$BASE_DIR/$SUBJECT_ID/ants_results/${SUBJECT_ID}_ants_0GenericAffine.mat"
+
+    echo "Running ANTs transform for subject $SUBJECT_ID..."
+
+    if [ -f $CVR_MAP ]; then
+        echo "File exists: $CVR_MAP"
+    else
+        echo "File does not exist: $CVR_MAP"
+    fi
+
+    if [ -f $FIRST_FRAME_IMAGE ]; then
+        echo "File exists: $FIRST_FRAME_IMAGE"
+    else
+        echo "File does not exist: $FIRST_FRAME_IMAGE"
+    fi
     
+    if [ -f $AFFINE ]; then
+        echo "File exists: $AFFINE"
+    else
+        echo "File does not exist: $AFFINE"
+    fi
+
+    antsApplyTransforms -d 3 \
+        -i $CVR_MAP \
+        -r $FIRST_FRAME_IMAGE \
+        -o "$OUTPUT_DIR/${SUBJECT_ID}_CVR_normalized.nii.gz" \
+        -t $AFFINE
+    
+
     # Verify if registration output was created
     if [ -f "${OUTPUT_PREFIX}Warped.nii.gz" ]; then
-        echo "Registration successful for subject: $subject_id"
+        echo "Registration successful for subject: $SUBJECT_ID"
         echo "Output saved at: ${OUTPUT_PREFIX}Warped.nii.gz"
     else
-        echo "Error: Registration failed for subject $subject_id. Output file not found."
+        echo "Error: Registration failed for subject $SUBJECT_ID. Output file not found."
     fi
 }
 
@@ -65,8 +95,8 @@ if [ "$SUBJECT_ID" == "all" ]; then
     echo "Processing all subjects in $BASE_DIR"
     for subject_dir in "$BASE_DIR"/*; do
         if [ -d "$subject_dir" ]; then
-            current_subject_id=$(basename "$subject_dir")
-            process_subject "$current_subject_id"
+            current_SUBJECT_ID=$(basename "$subject_dir")
+            process_subject "$current_SUBJECT_ID"
         fi
     done
 else

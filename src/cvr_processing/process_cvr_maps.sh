@@ -10,9 +10,6 @@ BASE_DIR="$2"
 # Threshold value for processing
 THRESHOLD_VALUE=0.7
 
-# Load necessary FSL module
-echo "Loading FSL module..."
-
 # Start processing each CVR map
 echo "Starting CVR map processing in directory: $INPUT_DIR"
 for file in "$INPUT_DIR"/*_BOLD_CVR.nii.gz; do

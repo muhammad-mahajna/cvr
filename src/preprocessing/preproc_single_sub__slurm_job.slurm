@@ -11,6 +11,9 @@
 #SBATCH --output=OutputFromMyCVRJob_%j.out
 #SBATCH --error=ErrorFromMyCVRJob_%j.err    # Standard error
 
+
+# This script will run preprocessing script for a single subject. Select the subject ID below.
+
 echo Hi, lets start working...
 
 # Define base directories
@@ -26,8 +29,10 @@ conda activate cvr_env
 # Get the list of subjects
 SUBJECT_LIST=($(ls -d $IN_BASE_DIR/*/ | xargs -n 1 basename))
 
+echo $SUBJECT_LIST
+
 # Select the subject based on the job array index
-SUBJECT_ID=${SUBJECT_LIST[3]} # select which subject you want to analyze
+SUBJECT_ID=${SUBJECT_LIST[7]} # select which subject you want to analyze
 
 echo "Starting analysis for subject: $SUBJECT_ID"
 

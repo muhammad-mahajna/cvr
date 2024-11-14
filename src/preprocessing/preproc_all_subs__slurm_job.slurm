@@ -11,6 +11,8 @@
 #SBATCH --output=OutputFromCVRJob_%A_%a.out
 #SBATCH --error=ErrorFromCVRJob_%A_%a.err
 
+
+# This script will run preprocessing scrip for all subjects by crating an array of jobs; a job for each subject. 
 echo Hi, lets start working...
 
 # Define base directories

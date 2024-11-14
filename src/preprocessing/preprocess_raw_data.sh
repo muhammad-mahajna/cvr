@@ -22,9 +22,8 @@ echo "Processing subject: $SUBJECT_ID"
 # Run each preprocessing step for the specific subject
 ./preprocess_fmri_anatomical.sh "$IN_BASE_DIR" "$OUTPUT_BASE_DIR" "$SUBJECT_ID"
 ./prepare_and_register_with_ants.sh "$IN_BASE_DIR" "$SUBJECT_ID"
-./normalize_and_extract_roi.sh "$IN_BASE_DIR" "$SUBJECT_ID"
 
 # Run CVR preprocessing
-./preprocess_ref_cvr_data.sh "$IN_BASE_DIR" "$OUTPUT_BASE_DIR" "$SUBJECT_ID"
+#./preprocess_ref_cvr_data.sh "$IN_BASE_DIR" "$OUTPUT_BASE_DIR" "$SUBJECT_ID"
 
 echo "Preprocessing complete for subject: $SUBJECT_ID"

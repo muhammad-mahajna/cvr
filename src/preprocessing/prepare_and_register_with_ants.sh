@@ -14,9 +14,6 @@ fi
 BASE_DIR="$1"
 SUBJECT_ID="$2"
 
-MNI_TEMPLATE="${FSLDIR}/data/standard/MNI152_T1_1mm.nii.gz"
-
-
 # Function to prepare and register data for a single subject
 prepare_and_register_subject() {
     SUBJECT_ID="$1"
@@ -59,12 +56,23 @@ prepare_and_register_subject() {
         echo "First frame already extracted. Skipping step." | tee -a "$LOG_FILE"
     fi
 
-    # Perform ANTs normalization directly on the skull-stripped T1 image
+    # Perform ANTs registration directly on the skull-stripped T1 image
     echo "Running ANTs normalization for subject $SUBJECT_ID..." | tee -a "$LOG_FILE"
     antsRegistrationSyNQuick.sh -d 3 \
-        -f "$MNI_TEMPLATE" \
-        -m "$T1_IMAGE" \
-        -o "$OUTPUT_DIR/${SUBJECT_ID}_ants_" || { echo "Error during ANTs registration for $SUBJECT_ID" | tee -a "$LOG_FILE"; return 1; }
+        -f "$T1_IMAGE" \
+        -m "$FIRST_FRAME_IMAGE" \
+        -o "$OUTPUT_DIR/${SUBJECT_ID}_ants_" \
+        -t r || { echo "Error during ANTs registration for $SUBJECT_ID" | tee -a "$LOG_FILE"; return 1; }
+
+
+    # Apply FMRI-First Frame transformation to fMRI data
+    echo "Applying normalization to reference space space for subject $SUBJECT_ID..." | tee -a "$LOG_FILE"
+    antsApplyTransforms -d 3 -e 3 \
+        -i "$FMRI_IMAGE" \
+        -r "$FIRST_FRAME_IMAGE" \
+        -o "$OUTPUT_DIR/${SUBJECT_ID}_fMRI_normalized.nii.gz" \
+        -t "$OUTPUT_DIR/${SUBJECT_ID}_ants_0GenericAffine.mat" \
+        -v 2>> "$LOG_FILE"
 
     echo "ANTs normalization complete for subject $SUBJECT_ID at $(date)" | tee -a "$LOG_FILE"
 }

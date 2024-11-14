@@ -43,7 +43,7 @@ preprocess_subject() {
 
     # Skull strip the T1-weighted image
     echo "Performing skull stripping on T1-weighted image for subject $SUBJECT_ID..."
-    bet2 "$INPUT_T1" "$OUTPUT_DIR/${SUBJECT_ID}_strip" -f 0.65 || { echo "Error during skull stripping for $SUBJECT_ID"; return 1; }
+    bet2 "$INPUT_T1" "$OUTPUT_DIR/${SUBJECT_ID}_strip" -f 0.5 || { echo "Error during skull stripping for $SUBJECT_ID"; return 1; }
 
     # Perform motion correction on rsBOLD images
     echo "Performing motion correction on fMRI images for subject $SUBJECT_ID..."

@@ -45,10 +45,10 @@ for subject_path in "$BASE_DICOM_DIR"/*; do
         mkdir -p "$NIFTI_BASE_DIR/$subject_name/$OUT_SUB_DIR/"
 
         # Find the specified subfolder within the subject's directory
-        target_folder=$(find "$subject_path" -type d -name "*$SEARCH_TERM" | head -n 1)
+        target_folder=$(find "$subject_path" -type d -name "*-$SEARCH_TERM" | head -n 1)
 
         if [ -z "$target_folder" ]; then
-            target_folder=$(find "$subject_path" -type d -name "*$SEARCH_TERM*" | head -n 1)
+            target_folder=$(find "$subject_path" -type d -name "*-$SEARCH_TERM*" | head -n 1)
             if [ -z "$target_folder" ]; then
                 echo "Warning: No '$SEARCH_TERM' folder found for subject $subject_name. Skipping."
                 continue

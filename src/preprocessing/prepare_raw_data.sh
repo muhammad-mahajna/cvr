@@ -36,6 +36,8 @@ echo "Prepare reference CVR maps"
 cd ../cvr_processing
 ./process_cvr_maps.sh $RAW_DATA_BASE_DIR $BASE_DIR
 
+./check_outputs.sh $BASE_DIR
+
 # Upload the results to the cluster. All directories and folder structure should be save the same
 echo "3. Upload rsBOLD images, T1 imagws and and CVR maps to the cluster"
 scp -r $BASE_DIR muhammad.mahajna@arc.ucalgary.ca:/home/muhammad.mahajna/workspace/research/data/cvr

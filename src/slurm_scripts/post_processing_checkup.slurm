@@ -5,11 +5,25 @@
 #SBATCH --cpus-per-task=1
 #SBATCH --time=00:15:00
 #SBATCH --mem=1GB
-#SBATCH --output=PostProcessCheck_%j.out
-#SBATCH --error=PostProcessCheck_%j.err
+#SBATCH --output=slurm_logs/output/post_proc/PostProcessCheck_%j.out
+#SBATCH --error=slurm_logs/error/post_proc/PostProcessCheck_%j.err
 
-# Define the base directory containing all subject directories
-BASE_DIR="../../../../data/cvr"
+# Ensure SLURM log directories exist
+mkdir -p slurm_logs/output/post_proc slurm_logs/error/post_proc
+
+echo "Starting post-processing checkup..."
+
+# Resolve base directories to absolute paths
+SCRIPT_DIR=$(realpath $(dirname "$0"))  # Path to the script directory
+BASE_DIR=$(realpath "${SCRIPT_DIR}/../../../../data/cvr")
+FMRI_INPUT_DIR="${BASE_DIR}/ml/fmri_input"
+CVR_REF_DIR="${BASE_DIR}/ml/cvr_ref"
+
+# Log files for missing and complete subjects
+MISSING_LOG="${SCRIPT_DIR}/output/missing_files.log"
+COMPLETE_SUBJECTS_LOG="${SCRIPT_DIR}/output/complete_subjects.log"
+> "$MISSING_LOG"  # Clear the missing files log
+> "$COMPLETE_SUBJECTS_LOG"  # Clear the complete subjects log
 
 # Array of required file paths for each subject
 REQUIRED_FILES=(
@@ -17,20 +31,11 @@ REQUIRED_FILES=(
     "CVR_MAPS/Thresholded/{SUBJECT_ID}_BOLD_CVR_resized_thresholded.nii.gz"
 )
 
-# Output directories for files to be copied
-FMRI_INPUT_DIR="${BASE_DIR}/ml/fmri_input"
-CVR_REF_DIR="${BASE_DIR}/ml/cvr_ref"
-
 # Ensure output directories exist
 mkdir -p "$FMRI_INPUT_DIR" "$CVR_REF_DIR"
 
-# Log files for missing and complete subjects
-MISSING_LOG="missing_files.log"
-COMPLETE_SUBJECTS_LOG="complete_subjects.log"
-> "$MISSING_LOG"  # Clear the missing files log
-> "$COMPLETE_SUBJECTS_LOG"  # Clear the complete subjects log
-
 # Check each subject's files
+echo "Checking files in base directory: $BASE_DIR"
 for SUBJECT_DIR in "$BASE_DIR"/*; do
     if [ -d "$SUBJECT_DIR" ]; then
         SUBJECT_ID=$(basename "$SUBJECT_DIR")

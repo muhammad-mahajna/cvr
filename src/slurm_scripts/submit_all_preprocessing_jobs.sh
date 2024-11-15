@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Get the directory of the current script (to handle relative paths robustly)
+SCRIPT_DIR=$(dirname "$0")
+
 # Define the base directory containing all subject directories
 IN_BASE_DIR="../../../../data/cvr"
 
@@ -12,11 +15,12 @@ if [ "$SUBJECT_COUNT" -eq 0 ]; then
     exit 1
 fi
 
-SUBJECT_COUNT = 5
+SUBJECT_COUNT = 3
+
 echo "Submitting preprocessing array job with $SUBJECT_COUNT tasks..."
 
 # Step 1: Submit the preprocessing array job and capture its Job ID
-PREPROCESS_JOB_ID=$(sbatch --array=0-$(($SUBJECT_COUNT - 1)) preproc_all_subs__slurm_job.slurm | awk '{print $4}')
+PREPROCESS_JOB_ID=$(sbatch --array=0-$(($SUBJECT_COUNT - 1)) "$SCRIPT_DIR/preproc_all_subs.slurm" | awk '{print $4}')
 echo "Preprocessing array job submitted with Job ID: $PREPROCESS_JOB_ID"
 
 echo "Submitting registration array job with dependencies on preprocessing jobs..."
@@ -30,16 +34,16 @@ for (( i=0; i<$SUBJECT_COUNT; i++ )); do
            --cpus-per-task=1 \
            --time=01:00:00 \
            --mem=20GB \
-           --output=OutputFromCVRRegisterJob_%A_%a.out \
-           --error=ErrorFromCVRRegisterJob_%A_%a.err \
+           --output="$SCRIPT_DIR/OutputFromCVRRegisterJob_%A_%a.out" \
+           --error="$SCRIPT_DIR/ErrorFromCVRRegisterJob_%A_%a.err" \
            --export=SLURM_ARRAY_TASK_ID=$i \
-           register_cvr_all_subs__slurm_job.slurm
+           "$SCRIPT_DIR/register_all_subs.slurm"
     echo "Submitted registration job $i with dependency on preprocessing job ${PREPROCESS_JOB_ID}_$i"
 done
 
 echo "Submitting post-processing checkup job with dependency on all registration jobs..."
 
 # Step 3: Submit the post-processing job, dependent on all registration jobs completing
-REGISTER_CVR_JOB_IDS=$(squeue --noheader --format="%i" --name=CVR_ARRAY_REGISTER | paste -sd: -)
-sbatch --dependency=afterok:$REGISTER_CVR_JOB_IDS post_processing_checkup.sh
+REGISTER_JOB_IDS=$(squeue --noheader --format="%i" --name=CVR_ARRAY_REGISTER | paste -sd: -)
+sbatch --dependency=afterok:$REGISTER_JOB_IDS "$SCRIPT_DIR/post_processing_checkup.sh"
 echo "Post-processing checkup job submitted with dependency on registration jobs"

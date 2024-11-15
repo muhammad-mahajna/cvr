@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# ./check_local_outputs.sh $BASE_DIR 
+
 # Define the base directory containing all subject directories
 BASE_DIR="$1"
 

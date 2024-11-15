@@ -8,12 +8,13 @@
 #SBATCH --partition=cpu2023
 #SBATCH --mail-type=END
 #SBATCH --mail-user=muhammad.mahajna@ucalgary.ca
-#SBATCH --output=OutputFromMyCVRJob_%j.out
-#SBATCH --error=ErrorFromMyCVRJob_%j.err    # Standard error
+#SBATCH --output=slurm_logs/output/single_sub/OutputFromMyCVRJob_%j.out
+#SBATCH --error=slurm_logs/error/single_sub/ErrorFromMyCVRJob_%j.err    # Standard error
 
+# Ensure SLURM log directories exist
+mkdir -p slurm_logs/output/single_sub slurm_logs/error/single_sub
 
 # This script will run preprocessing script for a single subject. Select the subject ID below.
-
 echo Hi, lets start working...
 
 # Define base directories

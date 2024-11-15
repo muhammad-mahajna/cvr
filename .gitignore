@@ -3,3 +3,5 @@
 *preprocessing_results/
 *.txt
 *.log
+*.out
+*.err

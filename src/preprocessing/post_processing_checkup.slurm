@@ -17,6 +17,13 @@ REQUIRED_FILES=(
     "CVR_MAPS/Thresholded/{SUBJECT_ID}_BOLD_CVR_resized_thresholded.nii.gz"
 )
 
+# Output directories for files to be copied
+FMRI_INPUT_DIR="${BASE_DIR}/ml/fmri_input"
+CVR_REF_DIR="${BASE_DIR}/ml/cvr_ref"
+
+# Ensure output directories exist
+mkdir -p "$FMRI_INPUT_DIR" "$CVR_REF_DIR"
+
 # Log files for missing and complete subjects
 MISSING_LOG="missing_files.log"
 COMPLETE_SUBJECTS_LOG="complete_subjects.log"
@@ -30,19 +37,31 @@ for SUBJECT_DIR in "$BASE_DIR"/*; do
         echo "Checking files for subject: $SUBJECT_ID"
         all_files_present=true
 
-        # Check each required file for the subject
-        for REL_PATH in "${REQUIRED_FILES[@]}"; do
-            FILE_PATH="${SUBJECT_DIR}/${REL_PATH//\{SUBJECT_ID\}/$SUBJECT_ID}"
-            
-            if [ ! -f "$FILE_PATH" ]; then
-                echo "Missing file for subject $SUBJECT_ID: $FILE_PATH" | tee -a "$MISSING_LOG"
-                all_files_present=false
-            fi
-        done
+        # Define file paths
+        fMRI_FILE="$SUBJECT_DIR/ants_results/${SUBJECT_ID}_fMRI_normalized.nii.gz"
+        CVR_FILE="$SUBJECT_DIR/CVR_MAPS/Thresholded/${SUBJECT_ID}_BOLD_CVR_resized_thresholded.nii.gz"
 
-        # Log subject if all files are present
+        # Check each required file for the subject
+        if [ ! -f "$fMRI_FILE" ]; then
+            echo "Missing file for subject $SUBJECT_ID: $fMRI_FILE" | tee -a "$MISSING_LOG"
+            all_files_present=false
+        fi
+        if [ ! -f "$CVR_FILE" ]; then
+            echo "Missing file for subject $SUBJECT_ID: $CVR_FILE" | tee -a "$MISSING_LOG"
+            all_files_present=false
+        fi
+
+        # Log subject if all files are present and copy files
         if [ "$all_files_present" = true ]; then
             echo "$SUBJECT_ID" | tee -a "$COMPLETE_SUBJECTS_LOG"
+
+            # Copy the fMRI normalized file to fmri_input directory
+            cp "$fMRI_FILE" "$FMRI_INPUT_DIR/${SUBJECT_ID}_fMRI_normalized.nii.gz"
+            echo "Copied $fMRI_FILE to $FMRI_INPUT_DIR"
+
+            # Copy the CVR thresholded file to cvr_ref directory
+            cp "$CVR_FILE" "$CVR_REF_DIR/${SUBJECT_ID}_BOLD_CVR_resized_thresholded.nii.gz"
+            echo "Copied $CVR_FILE to $CVR_REF_DIR"
         fi
     fi
 done

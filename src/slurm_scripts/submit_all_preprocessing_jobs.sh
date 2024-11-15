@@ -39,8 +39,6 @@ for (( i=0; i<$SUBJECT_COUNT; i++ )); do
     echo "Submitted registration job $i with dependency on preprocessing job ${PREPROCESS_JOB_ID}_$i"
 done
 
-exit 0
-
 echo "Submitting post-processing checkup job with dependency on all registration jobs..."
 
 # Step 3: Submit the post-processing job, dependent on all registration jobs completing

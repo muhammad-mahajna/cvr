@@ -50,7 +50,8 @@ if [ -z "$SUBJECT_ID" ]; then
 fi
 
 # Run the processing script for the selected subject
-echo "Processing subject: $SUBJECT_ID"
+echo "Running the processing script for the selected subject: $SUBJECT_ID"
+
 PREPROCESS_SCRIPT="${SCRIPT_DIR}/preprocess_raw_data.sh"
 
 if [ ! -f "$PREPROCESS_SCRIPT" ]; then

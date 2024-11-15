@@ -1,8 +1,11 @@
 #!/bin/bash
 
 # Example usage:
-# ./prepare_and_register_with_ants.sh /data/project1 SUBJECT001
-# ./prepare_and_register_with_ants.sh /data/project1 all
+# ./prepare_and_register_with_ants.sh /path/to/base_dir SUBJECT001
+# ./prepare_and_register_with_ants.sh /path/to/base_dir all
+
+echo "-----------------------------------------"
+echo "Running prepare_and_register_with_ants script"
 
 # Check for correct number of arguments
 if [ "$#" -ne 2 ]; then
@@ -10,8 +13,8 @@ if [ "$#" -ne 2 ]; then
     exit 1
 fi
 
-# Configurable base directories
-BASE_DIR="$1"
+# Resolve the base directory to an absolute path
+BASE_DIR=$(realpath "$1")
 SUBJECT_ID="$2"
 
 # Function to prepare and register data for a single subject
@@ -21,74 +24,77 @@ prepare_and_register_subject() {
     OUTPUT_DIR="$BASE_DIR/$SUBJECT_ID/ants_results"
     LOG_FILE="$OUTPUT_DIR/${SUBJECT_ID}_ants_log.txt"
 
-    # Check if the subject directory exists
-    if [ ! -d "$INPUT_DIR" ]; then
-        echo "Directory not found: $INPUT_DIR"
-        return 1
-    fi
-
-    # Create output directory for ANTs results if it doesn't exist
     mkdir -p "$OUTPUT_DIR"
 
-    # Initialize log file
-    echo "Starting ANTs preparation and registration for subject $SUBJECT_ID at $(date)" > "$LOG_FILE"
+    echo "Starting ANTs preparation and registration for subject $SUBJECT_ID at $(date)" 
 
     # Define paths to input files
     T1_IMAGE="$INPUT_DIR/${SUBJECT_ID}_strip.nii.gz"
     FMRI_IMAGE="$INPUT_DIR/rsBOLD_field_corrected.nii.gz"
     FIRST_FRAME_IMAGE="$OUTPUT_DIR/${SUBJECT_ID}_first_frame.nii.gz"
 
-    # Check if required files are available
+    # Check for required input files
     if [ ! -f "$T1_IMAGE" ]; then
-        echo "T1-weighted skull-stripped image not found for subject $SUBJECT_ID: $T1_IMAGE" | tee -a "$LOG_FILE"
+        echo "Error: T1-weighted skull-stripped image not found for subject $SUBJECT_ID: $T1_IMAGE" 
         return 1
     fi
     if [ ! -f "$FMRI_IMAGE" ]; then
-        echo "Field-corrected fMRI image not found for subject $SUBJECT_ID: $FMRI_IMAGE" | tee -a "$LOG_FILE"
+        echo "Error: Field-corrected fMRI image not found for subject $SUBJECT_ID: $FMRI_IMAGE" 
         return 1
     fi
 
-    # Extract the first frame from the field-corrected fMRI data if not already done
+    # Extract the first frame from the fMRI data
     if [ ! -f "$FIRST_FRAME_IMAGE" ]; then
-        echo "Extracting first frame from field-corrected fMRI data for subject $SUBJECT_ID..." | tee -a "$LOG_FILE"
-        fslroi "$FMRI_IMAGE" "$FIRST_FRAME_IMAGE" 0 1 || { echo "Error extracting first frame for $SUBJECT_ID" | tee -a "$LOG_FILE"; return 1; }
+        echo "Extracting first frame from field-corrected fMRI data for subject $SUBJECT_ID..." 
+        fslroi "$FMRI_IMAGE" "$FIRST_FRAME_IMAGE" 0 1 || {
+            echo "Error: Failed to extract first frame for subject $SUBJECT_ID" 
+            return 1
+        }
     else
-        echo "First frame already extracted. Skipping step." | tee -a "$LOG_FILE"
+        echo "First frame already exists. Skipping extraction." 
     fi
 
-    # Perform ANTs registration directly on the skull-stripped T1 image
-    echo "Running ANTs normalization for subject $SUBJECT_ID..." | tee -a "$LOG_FILE"
+    # Perform ANTs registration
+    echo "Running ANTs registration for subject $SUBJECT_ID..." 
     antsRegistrationSyNQuick.sh -d 3 \
         -f "$T1_IMAGE" \
         -m "$FIRST_FRAME_IMAGE" \
         -o "$OUTPUT_DIR/${SUBJECT_ID}_ants_" \
-        -t r || { echo "Error during ANTs registration for $SUBJECT_ID" | tee -a "$LOG_FILE"; return 1; }
+        -t r || {
+            echo "Error: ANTs registration failed for subject $SUBJECT_ID" 
+            return 1
+        }
 
-
-    # Apply FMRI-First Frame transformation to fMRI data
-    echo "Applying normalization to reference space space for subject $SUBJECT_ID..." | tee -a "$LOG_FILE"
+    # Apply transformation to normalize the fMRI data
+    echo "Applying transformation to normalize fMRI data for subject $SUBJECT_ID..." 
     antsApplyTransforms -d 3 -e 3 \
         -i "$FMRI_IMAGE" \
         -r "$FIRST_FRAME_IMAGE" \
         -o "$OUTPUT_DIR/${SUBJECT_ID}_fMRI_normalized.nii.gz" \
         -t "$OUTPUT_DIR/${SUBJECT_ID}_ants_0GenericAffine.mat" \
-        -v 2>> "$LOG_FILE"
+        -v 2>> "$LOG_FILE" || {
+            echo "Error: Transformation failed for subject $SUBJECT_ID" 
+            return 1
+        }
 
-    echo "ANTs normalization complete for subject $SUBJECT_ID at $(date)" | tee -a "$LOG_FILE"
+    echo "ANTs normalization complete for subject $SUBJECT_ID at $(date)" 
 }
 
-# If the subject ID is 'all', process all subjects in the directory
+# Process all subjects or a single subject
 if [ "$SUBJECT_ID" == "all" ]; then
-    for SUBJECT_DIR in "$BASE_DIR"/preprocessing_results/*; do
-        if [ -d "$SUBJECT_DIR" ]; then
+    for SUBJECT_DIR in "$BASE_DIR"/*; do
+        if [ -d "$SUBJECT_DIR/preprocessing_results" ]; then
             CURRENT_SUBJECT_ID=$(basename "$SUBJECT_DIR")
             prepare_and_register_subject "$CURRENT_SUBJECT_ID" || {
-                echo "Error processing subject $CURRENT_SUBJECT_ID"
+                echo "Error: Processing failed for subject $CURRENT_SUBJECT_ID" 
                 exit 1
             }
         fi
     done
 else
     # Process a single subject
-    prepare_and_register_subject "$SUBJECT_ID"
+    prepare_and_register_subject "$SUBJECT_ID" || {
+        echo "Error: Processing failed for subject $SUBJECT_ID" 
+        exit 1
+    }
 fi

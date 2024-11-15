@@ -19,6 +19,7 @@ CVR_REF_DIR="${BASE_DIR}/ml/cvr_ref"
 # Log files for missing and complete subjects
 MISSING_LOG="${SCRIPT_DIR}/output/missing_files.log"
 COMPLETE_SUBJECTS_LOG="${SCRIPT_DIR}/output/complete_subjects.log"
+mkdir -p "$(dirname "$MISSING_LOG")"  # Ensure the log folder exists
 > "$MISSING_LOG"  # Clear the missing files log
 > "$COMPLETE_SUBJECTS_LOG"  # Clear the complete subjects log
 
@@ -33,9 +34,17 @@ mkdir -p "$FMRI_INPUT_DIR" "$CVR_REF_DIR"
 
 # Check each subject's files
 echo "Checking files in base directory: $BASE_DIR"
+
 for SUBJECT_DIR in "$BASE_DIR"/*; do
     if [ -d "$SUBJECT_DIR" ]; then
         SUBJECT_ID=$(basename "$SUBJECT_DIR")
+        
+        # Skip non-subject directories (you can refine this filter as needed)
+        if [[ ! "$SUBJECT_ID" =~ ^SF_[0-9]+ ]]; then
+            echo "Skipping non-subject directory: $SUBJECT_ID"
+            continue
+        fi
+
         echo "Checking files for subject: $SUBJECT_ID"
         all_files_present=true
 

@@ -20,9 +20,12 @@ fi
 
 echo "Processing subject: $SUBJECT_ID"
 
+echo "IN_BASE_DIR: ${IN_BASE_DIR}"
+echo "SCRIPT_DIR: ${SCRIPT_DIR}"
+
 # Run each preprocessing step for the specific subject
-bash "$SCRIPT_DIR/preprocess_fmri_anatomical.sh" "$IN_BASE_DIR" "$OUTPUT_BASE_DIR" "$SUBJECT_ID" "$SCRIPT_DIR"
-bash "$SCRIPT_DIR/prepare_and_register_with_ants.sh" "$IN_BASE_DIR" "$SUBJECT_ID" "$SCRIPT_DIR"
+bash "$SCRIPT_DIR/preprocess_fmri_anatomical.sh" "$IN_BASE_DIR" "$OUTPUT_BASE_DIR" "$SUBJECT_ID"
+bash "$SCRIPT_DIR/prepare_and_register_with_ants.sh" "$IN_BASE_DIR" "$SUBJECT_ID"
 
 # Uncomment if CVR preprocessing is required
 # bash "$SCRIPT_DIR/preprocess_ref_cvr_data.sh" "$IN_BASE_DIR" "$OUTPUT_BASE_DIR" "$SUBJECT_ID" "$SCRIPT_DIR"

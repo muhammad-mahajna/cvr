@@ -8,9 +8,6 @@
 #SBATCH --output=slurm_logs/output/post_proc/PostProcessCheck_%j.out
 #SBATCH --error=slurm_logs/error/post_proc/PostProcessCheck_%j.err
 
-# Ensure SLURM log directories exist
-mkdir -p slurm_logs/output/post_proc slurm_logs/error/post_proc
-
 echo "Starting post-processing checkup..."
 
 # Resolve base directories to absolute paths

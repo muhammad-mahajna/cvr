@@ -1,5 +1,6 @@
 #!/bin/zsh
 #SBATCH --job-name=CVR_ARRAY
+#SBATCH --array=0-3
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
 #SBATCH --cpus-per-task=1
@@ -9,9 +10,6 @@
 ##SBATCH --mail-user=muhammad.mahajna@ucalgary.ca
 #SBATCH --output=slurm_logs/output/fmri_pre/OutputFromCVRJob_%A_%a.out
 #SBATCH --error=slurm_logs/error/fmri_pre/ErrorFromCVRJob_%A_%a.err
-
-# Ensure SLURM log directories exist
-mkdir -p slurm_logs/output/fmri_pre slurm_logs/error/fmri_pre
 
 echo "Hi, let's start working..."
 

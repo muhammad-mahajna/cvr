@@ -10,9 +10,6 @@
 #SBATCH --output=slurm_logs/output/cvr_reg/OutputFromCVRRegisterJob_%A_%a.out
 #SBATCH --error=slurm_logs/error/cvr_reg/ErrorFromCVRRegisterJob_%A_%a.err
 
-# Ensure SLURM log directories exist
-mkdir -p slurm_logs/output/cvr_reg slurm_logs/error/cvr_reg
-
 echo "Hi, let's start working..."
 
 # Resolve base directories to absolute paths

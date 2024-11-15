@@ -15,7 +15,12 @@ if [ "$SUBJECT_COUNT" -eq 0 ]; then
     exit 1
 fi
 
-SUBJECT_COUNT = 3
+SUBJECT_COUNT=3
+
+echo "Creating SLURM log directories"
+mkdir -p slurm_logs/output/fmri_pre/ slurm_logs/error/fmri_pre/
+mkdir -p slurm_logs/output/cvr_reg slurm_logs/error/cvr_reg
+mkdir -p slurm_logs/output/post_proc slurm_logs/error/post_proc
 
 echo "Submitting preprocessing array job with $SUBJECT_COUNT tasks..."
 
@@ -23,6 +28,7 @@ echo "Submitting preprocessing array job with $SUBJECT_COUNT tasks..."
 PREPROCESS_JOB_ID=$(sbatch --array=0-$(($SUBJECT_COUNT - 1)) "$SCRIPT_DIR/preproc_all_subs.slurm" | awk '{print $4}')
 echo "Preprocessing array job submitted with Job ID: $PREPROCESS_JOB_ID"
 
+exit 0
 echo "Submitting registration array job with dependencies on preprocessing jobs..."
 
 # Step 2: Submit each job in the registration array with dependency on the corresponding preprocessing job

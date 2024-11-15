@@ -15,7 +15,7 @@ echo "Hi, let's start working..."
 
 # Resolve base directories to absolute paths
 SCRIPT_DIR=$(realpath "${SLURM_SUBMIT_DIR}/../preprocessing")
-IN_BASE_DIR=$(realpath "../../../../data/cvr")
+IN_BASE_DIR="${SLURM_SUBMIT_DIR}/../../../../data/cvr"
 OUTPUT_BASE_DIR=$IN_BASE_DIR
 
 echo "Script directory resolved to: $SCRIPT_DIR"

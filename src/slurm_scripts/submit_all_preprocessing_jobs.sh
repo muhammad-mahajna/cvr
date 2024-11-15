@@ -42,6 +42,6 @@ done
 echo "Submitting post-processing checkup job with dependency on all registration jobs..."
 
 # Step 3: Submit the post-processing job, dependent on all registration jobs completing
-REGISTER_JOB_IDS=$(squeue --noheader --format="%i" --name=CVR_ARRAY_REGISTER | paste -sd: -)
+REGISTER_JOB_IDS=$(squeue --noheader --format="%i" --name=CVR_REG | paste -sd: -)
 sbatch --dependency=afterok:$REGISTER_JOB_IDS "$SCRIPT_DIR/post_processing_checkup.slurm"
 echo "Post-processing checkup job submitted with dependency on registration jobs"

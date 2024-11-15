@@ -1,14 +1,20 @@
 #!/bin/bash
+#SBATCH --job-name=CVR_PostProcessCheck
+#SBATCH --nodes=1
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=1
+#SBATCH --time=00:15:00
+#SBATCH --mem=1GB
+#SBATCH --output=PostProcessCheck_%j.out
+#SBATCH --error=PostProcessCheck_%j.err
 
 # Define the base directory containing all subject directories
-BASE_DIR="$1"
+BASE_DIR="../../../../data/cvr"
 
 # Array of required file paths for each subject
 REQUIRED_FILES=(
+    "ants_results/{SUBJECT_ID}_fMRI_normalized.nii.gz"
     "CVR_MAPS/Thresholded/{SUBJECT_ID}_BOLD_CVR_resized_thresholded.nii.gz"
-    "rsBOLD_ET/{SUBJECT_ID}_rsBOLD_ET.nii.gz"
-    "rsBOLD_ET_Flip/{SUBJECT_ID}_rsBOLD_ET_Flip.nii.gz"
-    "T1/{SUBJECT_ID}_T1.nii.gz"
 )
 
 # Log files for missing and complete subjects
@@ -49,33 +55,3 @@ else
 fi
 
 echo "Subjects with all files are listed in $COMPLETE_SUBJECTS_LOG."
-
-# Define the full list of possible subjects by listing the files and extracting subject IDs
-all_pos_subs=$(ls /Users/muhammadmahajna/workspace/network_drive/CVR_MAPS | sed -E 's/(SF_[0-9]+)_BOLD_CVR\.nii\.gz/\1/')
-
-# Read COMPLETE_SUBJECTS_LOG into an array using a while loop
-completed_subjects=()
-while IFS= read -r line; do
-    completed_subjects+=("$line")
-done < "$COMPLETE_SUBJECTS_LOG"
-
-# Convert `all_pos_subs` string into an array
-all_subjects=($all_pos_subs)
-
-# Initialize an empty array for missing subjects
-missing_subjects=()
-
-# Check each subject in `all_subjects` to see if it's in `completed_subjects`
-for subject in "${all_subjects[@]}"; do
-    if [[ ! " ${completed_subjects[@]} " =~ " ${subject} " ]]; then
-        missing_subjects+=("$subject")
-    fi
-done
-
-# Output missing subjects
-if [ ${#missing_subjects[@]} -eq 0 ]; then
-    echo "All subjects are accounted for in COMPLETE_SUBJECTS_LOG."
-else
-    echo "The following subjects are missing from COMPLETE_SUBJECTS_LOG:"
-    printf '%s\n' "${missing_subjects[@]}"
-fi

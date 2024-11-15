@@ -1,5 +1,5 @@
 #!/bin/zsh
-#SBATCH --job-name=CVR_ARRAY
+#SBATCH --job-name=CVR_FMRI
 #SBATCH --array=0-3
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1

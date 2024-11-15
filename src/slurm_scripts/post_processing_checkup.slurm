@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=CVR_PostProcessCheck
+#SBATCH --job-name=CVR_POST
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=1

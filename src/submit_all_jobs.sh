@@ -12,6 +12,7 @@ if [ "$SUBJECT_COUNT" -eq 0 ]; then
     exit 1
 fi
 
+SUBJECT_COUNT = 5
 echo "Submitting preprocessing array job with $SUBJECT_COUNT tasks..."
 
 # Step 1: Submit the preprocessing array job and capture its Job ID

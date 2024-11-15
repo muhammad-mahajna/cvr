@@ -28,24 +28,18 @@ echo "Submitting preprocessing array job with $SUBJECT_COUNT tasks..."
 PREPROCESS_JOB_ID=$(sbatch --array=0-$(($SUBJECT_COUNT - 1)) "$SCRIPT_DIR/preproc_all_subs.slurm" | awk '{print $4}')
 echo "Preprocessing array job submitted with Job ID: $PREPROCESS_JOB_ID"
 
-exit 0
 echo "Submitting registration array job with dependencies on preprocessing jobs..."
 
 # Step 2: Submit each job in the registration array with dependency on the corresponding preprocessing job
 for (( i=0; i<$SUBJECT_COUNT; i++ )); do
-    sbatch --job-name=CVR_ARRAY_REGISTER \
+    sbatch --job-name=CVR_REG \
            --dependency=afterok:${PREPROCESS_JOB_ID}_$i \
-           --nodes=1 \
-           --ntasks-per-node=1 \
-           --cpus-per-task=1 \
-           --time=01:00:00 \
-           --mem=20GB \
-           --output="$SCRIPT_DIR/OutputFromCVRRegisterJob_%A_%a.out" \
-           --error="$SCRIPT_DIR/ErrorFromCVRRegisterJob_%A_%a.err" \
            --export=SLURM_ARRAY_TASK_ID=$i \
-           "$SCRIPT_DIR/register_all_subs.slurm"
+           "$SCRIPT_DIR/register_cvr_all_subs.slurm"
     echo "Submitted registration job $i with dependency on preprocessing job ${PREPROCESS_JOB_ID}_$i"
 done
+
+exit 0
 
 echo "Submitting post-processing checkup job with dependency on all registration jobs..."
 

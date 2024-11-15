@@ -1,3 +1,5 @@
 /data/
 *.DS_Store
 *preprocessing_results/
+*.txt
+*.log

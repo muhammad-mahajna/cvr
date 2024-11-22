@@ -6,3 +6,5 @@
 *.out
 *.err
 *.pth
+*.npy
+*.mat

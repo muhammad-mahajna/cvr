@@ -15,7 +15,6 @@ if [ "$SUBJECT_COUNT" -eq 0 ]; then
     exit 1
 fi
 
-SUBJECT_COUNT=10
 
 echo "Creating SLURM log directories"
 mkdir -p slurm_logs/output/fmri_pre/ slurm_logs/error/fmri_pre/

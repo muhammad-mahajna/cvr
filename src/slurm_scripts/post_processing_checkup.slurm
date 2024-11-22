@@ -11,7 +11,7 @@
 echo "Starting post-processing checkup..."
 
 # Resolve base directories to absolute paths
-SCRIPT_DIR=$(realpath $(dirname "$0"))  # Path to the script directory
+SCRIPT_DIR=${SLURM_SUBMIT_DIR}  # Path to the script directory
 BASE_DIR=$(realpath "${SCRIPT_DIR}/../../../../data/cvr")
 FMRI_INPUT_DIR="${BASE_DIR}/ml/fmri_input"
 CVR_REF_DIR="${BASE_DIR}/ml/cvr_ref"

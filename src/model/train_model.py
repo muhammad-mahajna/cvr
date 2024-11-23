@@ -5,11 +5,10 @@ import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader, Dataset
 import os
-import nibabel as nib
-import matplotlib.pyplot as plt
 from concurrent.futures import ProcessPoolExecutor
 from utils import process_file
 from CNN1DModel import CNN1DModel
+from LSTMRegressionModel import LSTMRegressionModel
 
 device = torch.device("cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu")
 print(f'Using device: {device}')
@@ -106,7 +105,6 @@ TEST_INPUT_DIR = os.path.join(BASE_DIR, "func/registered/main_data/main_data/tes
 TRAIN_TARGET_DIR = os.path.join(BASE_DIR, "CVR_MAPS/registered/registered/training")
 VAL_TARGET_DIR = os.path.join(BASE_DIR, "CVR_MAPS/registered/registered/validation")
 TEST_TARGET_DIR = os.path.join(BASE_DIR, "CVR_MAPS/registered/registered/testing")
-
 # Load and preprocess the data
 print("Loading training data...")
 train_inputs, train_targets = load_cached_data("train_inputs.npy", "train_targets.npy", TRAIN_INPUT_DIR, TRAIN_TARGET_DIR)
@@ -132,21 +130,29 @@ test_loader = DataLoader(test_dataset, batch_size=BATCH_SIZE, shuffle=False)
 # Build model
 INPUT_SIZE = 435 - REMOVE_TIME_POINT # Number of time points
 LEARNING_RATE = 1e-3
-model = CNN1DModel(input_size=INPUT_SIZE)
+model_cnn = CNN1DModel(input_size=INPUT_SIZE)
 criterion = nn.MSELoss()
-optimizer = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE)
+optimizer_cnn = torch.optim.Adam(model_cnn.parameters(), lr=LEARNING_RATE)
+
+model_lstm = LSTMRegressionModel(input_size=1, hidden_size=128, num_layers=2, dropout=0.3)
+learning_rate = 0.001
+optimizer_lstm = torch.optim.Adam(model_lstm.parameters(), lr=learning_rate)
 
 
 # %%
 # Parameters
-EPOCHS = 20
-MODEL_SAVE_PATH = "best_model.pth"
+EPOCHS = 10
+MODEL_SAVE_PATH = "best_model_lstm.pth"
 PATIENCE = 5  # Stop training if validation loss doesn't improve for 5 consecutive epochs
+GRAD_CLIP = 1.0  # Gradient clipping max norm
 
 def train_model(model, train_loader, val_loader, criterion, optimizer, device):
     model.to(device)
     best_val_loss = float("inf")  # Initialize with a large value
     epochs_without_improvement = 0  # Counter for epochs without improvement
+
+    # Learning rate scheduler
+    scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', patience=3, factor=0.1, verbose=True)
 
     for epoch in range(EPOCHS):
         model.train()
@@ -158,6 +164,10 @@ def train_model(model, train_loader, val_loader, criterion, optimizer, device):
             outputs = model(inputs)
             loss = criterion(outputs, targets)
             loss.backward()
+
+            # Gradient clipping
+            torch.nn.utils.clip_grad_norm_(model.parameters(), GRAD_CLIP)
+
             optimizer.step()
             train_loss += loss.item() * inputs.size(0)
         
@@ -187,6 +197,9 @@ def train_model(model, train_loader, val_loader, criterion, optimizer, device):
             epochs_without_improvement += 1
             print(f"No improvement for {epochs_without_improvement} epoch(s).")
 
+        # Update the learning rate
+        scheduler.step(val_loss)
+
         # Early stopping
         if epochs_without_improvement >= PATIENCE:
             print(f"Early stopping triggered. No improvement for {PATIENCE} consecutive epochs.")
@@ -194,9 +207,11 @@ def train_model(model, train_loader, val_loader, criterion, optimizer, device):
 
 
 # %%
-# Train the model
+# Train the model - CNN
 print("Training the model...")
-train_model(model, train_loader, val_loader, criterion, optimizer, device)
+#train_model(model_cnn, train_loader, val_loader, criterion, optimizer_cnn, device)
+
+train_model(model_lstm, train_loader, val_loader, criterion, optimizer_lstm, device)
 
 
 # %%

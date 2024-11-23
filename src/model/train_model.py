@@ -9,15 +9,19 @@ import nibabel as nib
 import matplotlib.pyplot as plt
 from concurrent.futures import ProcessPoolExecutor
 from utils import process_file
+from CNN1DModel import CNN1DModel
 
 device = torch.device("cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu")
 print(f'Using device: {device}')
 
 
 # %%
+
 # Data loaders
 
-REMOVE_TIME_POINT = 5 # remove the first samples from the fMRI data
+REMOVE_TIME_POINT = 5  # Remove the first samples from the fMRI data
+DATA_THRESHOLD = 1
+ZERO_COUNT_THRESHOLD = 43 # 10%x430
 
 class TimeSeriesDataset(Dataset):
     def __init__(self, inputs, targets):
@@ -31,7 +35,7 @@ class TimeSeriesDataset(Dataset):
         return self.inputs[idx], self.targets[idx]
 
 
-def load_dataset_parallel(input_dir, target_dir, num_workers=16):
+def load_dataset_parallel(input_dir, target_dir, num_workers=1):
     # List all files in the directories, sorted for consistency
     input_files = sorted([os.path.join(input_dir, f) for f in os.listdir(input_dir) if f.endswith(('.nii', '.nii.gz'))])
     target_files = sorted([os.path.join(target_dir, f) for f in os.listdir(target_dir) if f.endswith(('.nii', '.nii.gz'))])
@@ -39,17 +43,39 @@ def load_dataset_parallel(input_dir, target_dir, num_workers=16):
     inputs = []
     targets = []
 
-    # Use parallel processing to load inputs
+    # Use parallel processing to load inputs and targets
     with ProcessPoolExecutor(max_workers=num_workers) as executor:
-        inputs = list(executor.map(process_file, input_files, [False] * len(input_files), [REMOVE_TIME_POINT] * len(input_files)))
+        inputs = list(executor.map(
+            process_file, 
+            input_files, 
+            [False] * len(input_files), 
+            [REMOVE_TIME_POINT] * len(input_files), 
+            [DATA_THRESHOLD] * len(input_files), 
+            [ZERO_COUNT_THRESHOLD] * len(input_files)
+        ))
         targets = list(executor.map(process_file, target_files, [True] * len(target_files)))
 
-    # Convert lists to NumPy arrays
-    inputs = np.vstack(inputs).astype(np.float32)
-    targets = np.vstack(targets).astype(np.float32)
+    # Stack the loaded data
+    inputs = np.vstack([x for x in inputs if x.size > 0]).astype(np.float32)
+    targets = np.vstack([x for x in targets if x.size > 0]).astype(np.float32)
+
+    # Save original length
+    original_length = inputs.shape[0]
+
+    # Create a boolean mask for rows where all values are zero in inputs or targets
+    non_zero_mask = ~((inputs == 0).all(axis=1) | (targets == 0).all(axis=1))
+
+    # Apply the mask to filter out rows
+    inputs = inputs[non_zero_mask, :]  # Keep rows in inputs
+    targets = targets[non_zero_mask, :]  # Keep rows in targets
+
+    # Calculate the number of removed samples
+    removed_samples = original_length - inputs.shape[0]
 
     print(f"Final input shape: {inputs.shape}")
     print(f"Final target shape: {targets.shape}")
+    print(f"Samples included: {inputs.shape[0]}")
+    print(f"Samples removed: {removed_samples}")
 
     return inputs, targets
 
@@ -70,17 +96,16 @@ def load_cached_data(input_file, target_file, input_dir, target_dir):
 
 BATCH_SIZE = 32
 
-# Common directory
 BASE_DIR = "/home/muhammad.mahajna/workspace/research/data/cvr_est_project"
 
 # Subdirectories
-TRAIN_INPUT_DIR = os.path.join(BASE_DIR, "func/registered/main_data/training")
-VAL_INPUT_DIR = os.path.join(BASE_DIR, "func/registered/main_data/validation")
-TEST_INPUT_DIR = os.path.join(BASE_DIR, "func/registered/main_data/testing")
+TRAIN_INPUT_DIR = os.path.join(BASE_DIR, "func/registered/main_data/main_data/training")
+VAL_INPUT_DIR = os.path.join(BASE_DIR, "func/registered/main_data/main_data/validation")
+TEST_INPUT_DIR = os.path.join(BASE_DIR, "func/registered/main_data/main_data/testing")
 
-TRAIN_TARGET_DIR = os.path.join(BASE_DIR, "CVR_MAPS/registered/training")
-VAL_TARGET_DIR = os.path.join(BASE_DIR, "CVR_MAPS/registered/validation")
-TEST_TARGET_DIR = os.path.join(BASE_DIR, "CVR_MAPS/registered/testing")
+TRAIN_TARGET_DIR = os.path.join(BASE_DIR, "CVR_MAPS/registered/registered/training")
+VAL_TARGET_DIR = os.path.join(BASE_DIR, "CVR_MAPS/registered/registered/validation")
+TEST_TARGET_DIR = os.path.join(BASE_DIR, "CVR_MAPS/registered/registered/testing")
 
 # Load and preprocess the data
 print("Loading training data...")
@@ -103,47 +128,6 @@ test_loader = DataLoader(test_dataset, batch_size=BATCH_SIZE, shuffle=False)
 
 
 # %%
-# Model
-class CNN1DModel(nn.Module):
-    def __init__(self, input_size):
-        super(CNN1DModel, self).__init__()
-        self.network = nn.Sequential(
-            nn.Conv1d(1, 20, kernel_size=3, padding=1),  # Conv1D Layer 1
-            nn.LeakyReLU(),
-            nn.BatchNorm1d(20),
-            nn.MaxPool1d(2),
-
-            nn.Conv1d(20, 40, kernel_size=3, padding=1),  # Conv1D Layer 2
-            nn.LeakyReLU(),
-            nn.MaxPool1d(2),
-
-            nn.Dropout(0.1),  # Dropout for regularization
-
-            nn.Conv1d(40, 80, kernel_size=3, padding=1),  # Conv1D Layer 3
-            nn.LeakyReLU(),
-            nn.BatchNorm1d(80),
-            nn.MaxPool1d(2),
-
-            nn.Conv1d(80, 160, kernel_size=3, padding=1),  # Conv1D Layer 4
-            nn.LeakyReLU(),
-            nn.BatchNorm1d(160),
-            nn.MaxPool1d(2),
-
-            nn.Dropout(0.2),  # Increased dropout for deeper layers
-
-            nn.Conv1d(160, 320, kernel_size=3, padding=1),  # Conv1D Layer 5
-            nn.LeakyReLU(),
-            nn.BatchNorm1d(320),
-            nn.MaxPool1d(2),
-
-            nn.Flatten(),  # Flatten for fully connected layers
-            nn.Dropout(0.2),
-            nn.Linear(320 * (input_size // (2 ** 5)), 1)  # Final Dense Layer
-        )
-
-    def forward(self, x):
-        return self.network(x)
-
 
 # Build model
 INPUT_SIZE = 435 - REMOVE_TIME_POINT # Number of time points
@@ -157,7 +141,7 @@ optimizer = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE)
 # Parameters
 EPOCHS = 20
 MODEL_SAVE_PATH = "best_model.pth"
-PATIENCE = 7  # Stop training if validation loss doesn't improve for 5 consecutive epochs
+PATIENCE = 5  # Stop training if validation loss doesn't improve for 5 consecutive epochs
 
 def train_model(model, train_loader, val_loader, criterion, optimizer, device):
     model.to(device)
@@ -226,7 +210,8 @@ with torch.no_grad():
         outputs = model(inputs)
         loss = criterion(outputs, targets)
         test_loss += loss.item() * inputs.size(0)
-        print(loss.item())
 
 test_loss /= len(test_loader.dataset)
 print(f"Test Loss: {test_loss:.4f}")
+
+

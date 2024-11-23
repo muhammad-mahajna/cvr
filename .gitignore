@@ -8,3 +8,5 @@
 *.pth
 *.npy
 *.mat
+*.nii
+*.pyc

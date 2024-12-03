@@ -2,9 +2,9 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-class CNN1DModel(nn.Module):
+class CVRRegressionModel(nn.Module):
     def __init__(self, input_size, embedding_dim=40, max_len=5000):
-        super(CNN1DModel, self).__init__()
+        super(CVRRegressionModel, self).__init__()
         
         # Add positional encoding
         #self.positional_encoding = PositionalEncoding(embedding_dim, max_len)

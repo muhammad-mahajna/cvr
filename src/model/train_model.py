@@ -7,7 +7,7 @@ from torch.utils.data import DataLoader, Dataset
 import os
 from concurrent.futures import ProcessPoolExecutor
 from utils import process_file
-from CNN1DModel import CNN1DModel
+from CVRRegressionModel import CVRRegressionModel
 from LSTMRegressionModel import LSTMRegressionModel
 
 device = torch.device("cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu")
@@ -130,7 +130,7 @@ test_loader = DataLoader(test_dataset, batch_size=BATCH_SIZE, shuffle=False)
 # Build model
 INPUT_SIZE = 435 - REMOVE_TIME_POINT # Number of time points
 LEARNING_RATE = 1e-3
-model_cnn = CNN1DModel(input_size=INPUT_SIZE)
+model_cnn = CVRRegressionModel(input_size=INPUT_SIZE)
 criterion = nn.MSELoss()
 optimizer_cnn = torch.optim.Adam(model_cnn.parameters(), lr=LEARNING_RATE)
 

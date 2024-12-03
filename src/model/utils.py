@@ -27,7 +27,7 @@ def process_file(filepath, is_target=False, remove_time_points=5, data_threshold
     data = load_tf(filepath)  # Load the data (4D for inputs, 3D for targets)
 
     # Select specific slices
-    if False and slice_range is not None:
+    if slice_range is not None:
         if is_target:
             data = data[:, :, slice_range[0]:slice_range[1]]  # Target is 3D
         else:
@@ -36,9 +36,9 @@ def process_file(filepath, is_target=False, remove_time_points=5, data_threshold
     if is_target:
         # Targets: Flatten spatial dimensions to (num_voxels, 1)
         reshaped = data.reshape((-1, 1))
-
+        
         # Clip the target values to the range [-0.7, 0.7]
-        #reshaped = np.clip(reshaped, -0.7, 0.7)
+        reshaped = np.clip(reshaped, -0.7, 0.7)
     else:
         # Inputs: Remove initial time points and reshape
         data = data[..., remove_time_points:]  # Slice the time dimension

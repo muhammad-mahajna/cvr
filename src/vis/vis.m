@@ -1,12 +1,30 @@
 %% Load data
 base_dir = "/Users/muhammadmahajna/workspace/research/code/cvr/src/model/output/";
-sub_id = "SF_01035";
+sub_id = "SF_01135";
 
 fmri_file = base_dir + sub_id + "_4D.mat";
 cvr_file = base_dir + sub_id + "_CVR.mat";
 
 load(fmri_file); % fmri_4d
 load(cvr_file); % cvr_3d
+
+%%
+
+cvr_3d(cvr_3d<-0.7) = -0.7;
+cvr_3d(cvr_3d>0.7) = 0.7;
+fmri_4d(fmri_4d < 1) = nan;
+figure;
+imagesc(cvr_3d(:,end:-1:1,15)')
+%%
+figure;
+imagesc(fmri_4d(:,end:-1:1,15, 10)')
+
+sig1 = squeeze(fmri_4d(14,24,15, :));
+sig2 = squeeze(fmri_4d(29,47,15, :));
+sig3 = squeeze(fmri_4d(48,45,15, :));
+sig4 = squeeze(fmri_4d(19,35,15, :));
+
+plot(sig4, 'LineWidth',1)
 
 %% CVR data visualization - spatial
 

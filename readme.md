@@ -68,7 +68,13 @@ Data is expected to be stored under `/home/muhammad.mahajna/workspace/research/d
    conda list
    ```
 
-### Step 2: Train the Model
+### Step 2: Run Preprocessing tasks
+   ```bash
+   cd /src/slurm_scripts
+   sbatch submit_all_preprocessing_jobs.sh
+   ```
+
+### Step 3: Train the Model
 
 1. **Submit the training job**:
 

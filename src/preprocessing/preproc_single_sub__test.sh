@@ -1,2 +1,2 @@
 
-time ./preproc_single_sub__slurm_job.slurm
+time ./preproc_single_sub.slurm

@@ -70,3 +70,10 @@ Automate the preprocessing of multiple subjects by applying the preprocess_fmri_
 ```bash
 ./run_functional_analysis.sh
 ```
+
+
+# Preprocessing pipeline:
+This pipeline will prepare all data (fMRI+Anatomical+CVR)
+1. Make sure that data exists in local folders 
+2. run `./prepare_raw_data.sh` locally to create working data and upload this data to the cluster.
+3. run `./submit_all_preprocessing_jobs.sh.slurm` in the cluster to perform all preprocessing steps on all available subjects (inlcuding rsBOLD and reference CVR data analysis)

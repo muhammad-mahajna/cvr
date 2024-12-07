@@ -2,13 +2,14 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
+# CVR regression model. A self contained class holding all model code. 
+# Refer to the model_design.png for a visual representation of the model
+
 class CVRRegressionModel(nn.Module):
-    def __init__(self, input_size, embedding_dim=40, max_len=5000):
+    def __init__(self, embedding_dim=40):
         super(CVRRegressionModel, self).__init__()
         
-        # Add positional encoding
-        #self.positional_encoding = PositionalEncoding(embedding_dim, max_len)
-
+        # Feature Extraction stage
         # Define the initial block
         self.initial_block = nn.Sequential(
             nn.Conv1d(1, 20, kernel_size=3, padding=1),
@@ -24,7 +25,7 @@ class CVRRegressionModel(nn.Module):
             nn.MaxPool1d(2)
         )
         
-        # Add Self-Attention after downsampling
+        # Define Self-Attention block
         self.self_attention = SelfAttention(embedding_dim)
         
         # Define the middle block
@@ -45,7 +46,8 @@ class CVRRegressionModel(nn.Module):
             nn.AdaptiveAvgPool1d(1)
         )
         
-        # Fully connected layers
+        # Regression stage
+        # Define Fully connected layers
         self.classifier = nn.Sequential(
             nn.Flatten(),
             nn.Dropout(0.3),
@@ -56,9 +58,6 @@ class CVRRegressionModel(nn.Module):
         )
     
     def forward(self, x):
-        # Apply positional encoding
-        
-        #x = self.positional_encoding(x)
         
         # Pass through the initial block
         x = self.initial_block(x)
@@ -69,94 +68,74 @@ class CVRRegressionModel(nn.Module):
         # Pass through the self-attention block
         x, attention_weights = self.self_attention(x)
         
-        # Continue with the middle block
+        # Pass through the middle block
         x = self.middle_block(x)
         
         # Pass through the multi-scale convolution block
         x = self.multi_scale_block(x)
         
-        # Classifier layer
+        # Finish with the regression layer
         x = self.classifier(x)
         return x, attention_weights
 
+# Define the multi-scale feature extraction block
 class MultiScaleConv1D(nn.Module):
     def __init__(self, in_channels, out_channels):
         super(MultiScaleConv1D, self).__init__()
-        self.conv1 = nn.Conv1d(in_channels, out_channels, kernel_size=3, padding=1)
-        self.conv2 = nn.Conv1d(in_channels, out_channels, kernel_size=5, padding=2)
-        self.conv3 = nn.Conv1d(in_channels, out_channels, kernel_size=7, padding=3)
-        self.fusion = nn.Conv1d(out_channels * 3, out_channels, kernel_size=1)  # fusion layer
+        
+        # Define the three convolution layers
+        self.conv1 = nn.Conv1d(in_channels, out_channels, kernel_size=3, padding=1) # conv_length = 3
+        self.conv2 = nn.Conv1d(in_channels, out_channels, kernel_size=5, padding=2) # conv_length = 5
+        self.conv3 = nn.Conv1d(in_channels, out_channels, kernel_size=7, padding=3) # conv_length = 7
+        
+        # Define the fusion conv layer
+        self.fusion = nn.Conv1d(out_channels * 3, out_channels, kernel_size=1)      # fusion layer
 
     def forward(self, x):
+        # Apply the three conv layers
         out1 = self.conv1(x)
         out2 = self.conv2(x)
         out3 = self.conv3(x)
-        out = torch.cat([out1, out2, out3], dim=1)  # Concatenate along channel dimension
-        return self.fusion(out)  # apply 1x1 convolution for feature fusion
 
-class PositionalEncoding(nn.Module):
-    def __init__(self, seq_len, embedding_dim=1, max_len=5000):
-        """
-        Positional Encoding for 1D sequences.
+        # Concatenate along channel dimension
+        out = torch.cat([out1, out2, out3], dim=1)
+        
+        # Apply 1x1 convolution for feature fusion
+        return self.fusion(out) 
 
-        Args:
-            seq_len (int): Length of the sequence.
-            embedding_dim (int): Channel dimension (should match input channels).
-            max_len (int): Maximum sequence length for precomputing encodings.
-        """
-        super(PositionalEncoding, self).__init__()
-        self.embedding_dim = embedding_dim  # Typically matches the channel size
-        self.seq_len = seq_len
-
-        # Precompute positional encodings
-        pe = torch.zeros(max_len, seq_len)
-        position = torch.arange(0, max_len, dtype=torch.float).unsqueeze(1)
-        div_term = torch.exp(torch.arange(0, seq_len, 2).float() * (-torch.log(torch.tensor(10000.0)) / seq_len))
-        pe[:, 0::2] = torch.sin(position * div_term)
-        pe[:, 1::2] = torch.cos(position * div_term)
-
-        # Register as a buffer to prevent updates
-        self.register_buffer('pe', pe.unsqueeze(0).transpose(1, 2))  # Shape: (1, seq_len, max_len)
-
-    def forward(self, x):
-        """
-        Add positional encoding to the input tensor.
-
-        Args:
-            x (torch.Tensor): Input tensor of shape (batch_size, channels, seq_len).
-
-        Returns:
-            torch.Tensor: Tensor with positional encodings added to the sequence dimension.
-        """
-        batch_size, channels, seq_len = x.size()
-
-        # Ensure seq_len is within max_len
-        assert seq_len <= self.pe.size(-1), "Sequence length exceeds the maximum length of positional encoding."
-
-        # Add positional encoding to the sequence dimension
-        return x + self.pe[:, :, :seq_len].expand(batch_size, channels, seq_len)
-    
-
+# Define the Squeeze and Excitation feature extraction block (SEBlock)
 class SEBlock(nn.Module):
     def __init__(self, channels, reduction=16):
         super(SEBlock, self).__init__()
+        
+        # Squeeze the input 
         self.fc1 = nn.Linear(channels, channels // reduction)
         self.relu = nn.LeakyReLU()
+
+        # Go back to the original dimention
         self.fc2 = nn.Linear(channels // reduction, channels)
         self.sigmoid = nn.Sigmoid()
 
     def forward(self, x):
         batch, channels, _ = x.size()
-        y = x.mean(dim=2)  # Global Average Pooling
+        # Global Average Pooling
+        y = x.mean(dim=2)
+
+        # Apply the FCCs
         y = self.fc1(y)
         y = self.relu(y)
         y = self.fc2(y)
         y = self.sigmoid(y).view(batch, channels, 1)
+
+        # Multiply the input with the calculated mask
         return x * y
 
+# Define the Residual feature extraction block (SEBlock)
 class ResidualBlock(nn.Module):
     def __init__(self, in_channels, out_channels, kernel_size=3, stride=1, padding=1):
         super(ResidualBlock, self).__init__()
+        # Implement the standard resnet block (as in https://d2l.ai/chapter_convolutional-modern/resnet.html)
+
         self.conv1 = nn.Conv1d(in_channels, out_channels, kernel_size, stride, padding)
         self.bn1 = nn.BatchNorm1d(out_channels)
         self.relu = nn.LeakyReLU()
@@ -165,25 +144,34 @@ class ResidualBlock(nn.Module):
         self.skip = nn.Conv1d(in_channels, out_channels, kernel_size=1) if in_channels != out_channels else nn.Identity()
 
     def forward(self, x):
+        # Calualte the skip function
         identity = self.skip(x)
+        
+        # Apply the main layers (2-convs followed by batch-norm and activation)
         out = self.conv1(x)
         out = self.bn1(out)
         out = self.relu(out)
         out = self.conv2(out)
         out = self.bn2(out)
+        
+        # The actual skipping
         out += identity
-        out = self.relu(out)
-        return out
 
+        # Final activation layer
+        return self.relu(out)
+
+# Define the Self Attention feature extraction block
 class SelfAttention(nn.Module):
     def __init__(self, in_channels):
         super(SelfAttention, self).__init__()
+
         # Learnable transformations for Query, Key, and Value
         self.query = nn.Conv1d(in_channels, in_channels // 8, kernel_size=1)
         self.key = nn.Conv1d(in_channels, in_channels // 8, kernel_size=1)
         self.value = nn.Conv1d(in_channels, in_channels, kernel_size=1)
-        # Scaling factor
-        self.gamma = nn.Parameter(torch.zeros(1))  # Scales the output of the attention layer
+
+        # Scaling factor - Scales the output of the attention layer
+        self.gamma = nn.Parameter(torch.zeros(1))
 
     def forward(self, x):
 
@@ -205,3 +193,5 @@ class SelfAttention(nn.Module):
         out = self.gamma * out + x
 
         return out, attention_weights
+
+# EOF

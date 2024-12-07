@@ -170,13 +170,13 @@ test_target_dir = os.path.join(base_dir, "CVR_MAPS/registered/testing")
 
 # Load and preprocess the data
 print("Loading training data...")
-train_inputs, train_targets = load_cached_data("data/train_inputs.npy", "data/train_targets.npy", train_input_dir, train_target_dir)
+train_inputs, train_targets = load_cached_data("train_inputs.npy", "train_targets.npy", train_input_dir, train_target_dir)
 
 print("Loading validation data...")
-val_inputs, val_targets = load_cached_data("data/val_inputs.npy", "data/val_targets.npy", val_input_dir, val_target_dir)
+val_inputs, val_targets = load_cached_data("val_inputs.npy", "val_targets.npy", val_input_dir, val_target_dir)
 
 print("Loading test data...")
-test_inputs, test_targets = load_cached_data("data/test_inputs.npy", "data/test_targets.npy", test_input_dir, test_target_dir)
+test_inputs, test_targets = load_cached_data("test_inputs.npy", "test_targets.npy", test_input_dir, test_target_dir)
 
 # Create datasets using the loaded data
 train_dataset = TimeSeriesDataset(train_inputs, train_targets, normalize=NORMALIZE_DATA)

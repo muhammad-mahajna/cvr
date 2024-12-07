@@ -21,7 +21,7 @@ echo "Script directory resolved to: $SCRIPT_DIR"
 echo "Input base directory resolved to: $IN_BASE_DIR"
 
 # Define the path to the registration script
-REGISTER_SCRIPT="${SCRIPT_DIR}/../cvr_ref/register_cvr_to_anat.sh"
+REGISTER_SCRIPT="${SCRIPT_DIR}/cvr_ref/register_cvr_to_anat.sh"
 
 # Check if the registration script exists
 if [ ! -f "$REGISTER_SCRIPT" ]; then

@@ -93,11 +93,7 @@ Data is expected to be stored under `/home/muhammad.mahajna/workspace/research/d
 ## Requirements
 
 - `torch`: For deep learning model creation.
-- `torchvision`: For image data processing.
-- `transformers`: For text data processing with DistilBERT.
-- `scikit-learn`: For evaluation metrics.
-- `matplotlib` and `seaborn`: For plotting confusion matrices and other visualizations.
-- `pillow` and `numpy`: For image and numerical data handling.
+- `numpy`: For image and numerical data handling.
 
 ## Example Usage
 
@@ -113,11 +109,6 @@ Data is expected to be stored under `/home/muhammad.mahajna/workspace/research/d
    sbatch train_model_job.sh
    ```
 
-3. **Check the output** in the Slurm `.out` file to monitor the progress and performance metrics.
-
-## Data and Methods
-
-This project uses a combination of image data and text descriptions to classify images into four categories: Black, Blue, Green, and TTR. The model architecture consists of a ResNet50 model for image feature extraction and a DistilBERT model for processing text descriptions. A fully connected neural network combines the features and classifies input data into one of the said output classes. 
-
+3. **Check the output**: under `/slurm_scripts/slurm_logs` locate the `.out` and `.err` files to monitor the progress and performance metrics.
 
 Enjoy exploring this project!

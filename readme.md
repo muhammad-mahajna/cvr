@@ -13,7 +13,7 @@ Data is expected to be stored under `/home/muhammad.mahajna/workspace/research/d
 
 ```
 ├── env_utils/                                  # Folder containing environment setup scripts. 
-├── misc/                                       # Folder containing temporary code that was tried. There is no guarantee that this code will work.
+├── misc/                                       # Folder containing temporary code that was tried. There is no guarantee that this code will work, but it gives an overview of the methods that were tried. 
 ├── src/                                        # Source code folder
 │   ├── model                                   # ML model folder
 │   │   ├── data                                # Folder containing temporary data
@@ -40,12 +40,7 @@ Data is expected to be stored under `/home/muhammad.mahajna/workspace/research/d
 │       ├── preproc_all_subs.slurm              # Script for running the preprocessing steps for all subjects.
 │       ├── register_cvr_all_subs.slurm         # Script for running the CVR registration steps for all subjects.
 │       └── post_processing_checkup.slurm       # Script for running post-processing checkup steps.
-├── setup_conda_environment.sh                  # Script to set up the Conda environment.
-├── model_notebook.py                           # Jupyter notebook for training and evaluating the model.
-├── train_model.py                              # Python script for training the model (same code as the notebook).
-├── slurm_job_gpu.sh                            # Slurm submission script (using GPU).
-├── slurm_job_cpu.sh                            # Slurm submission script (using CPU).
-└── misc/                                       # Folder containing temporary code that was tried. There is no guarantee that this code will work, but it gives an overview of the methods that were tried. 
+└── readme.md                                   # README file (this file)
 ```
 
 ## Setup Instructions

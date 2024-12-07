@@ -3,7 +3,7 @@
 #SBATCH --ntasks-per-node=1
 #SBATCH --cpus-per-task=32
 #SBATCH --time=23:00:00
-#SBATCH --mem=48GB
+#SBATCH --mem=128GB
 #SBATCH --job-name=CVR_MODEL
 #SBATCH --mail-type=END
 #SBATCH --mail-user=muhammad.mahajna@ucalgary.ca

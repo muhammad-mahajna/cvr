@@ -1,5 +1,6 @@
 #!/bin/bash
-# Script to convert DICOM files to NIfTI format for multiple subjects or a single subject using dcm2niix.
+
+# convert_dicom_to_nifti.sh :: Script to convert DICOM files to NIfTI format for multiple subjects or a single subject using dcm2niix.
 
 # Check if the correct number of arguments is provided
 if [ "$#" -lt 5 ] || [ "$#" -gt 6 ]; then

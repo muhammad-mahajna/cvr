@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# register_cvr_to_anat.sh :: Register reference CVR maps to the anatomical image (T1)
+
 # Check if correct number of arguments is provided
 if [ "$#" -ne 2 ]; then
     echo "Usage: $0 <BASE_DIR> <SUBJECT_ID> or 'all' to process all subjects"
@@ -55,24 +57,6 @@ process_subject() {
     AFFINE="$BASE_DIR/$SUBJECT_ID/ants_results/${SUBJECT_ID}_ants_0GenericAffine.mat"
 
     echo "Running ANTs transform for subject $SUBJECT_ID..."
-
-    if [ -f $CVR_MAP ]; then
-        echo "File exists: $CVR_MAP"
-    else
-        echo "File does not exist: $CVR_MAP"
-    fi
-
-    if [ -f $FIRST_FRAME_IMAGE ]; then
-        echo "File exists: $FIRST_FRAME_IMAGE"
-    else
-        echo "File does not exist: $FIRST_FRAME_IMAGE"
-    fi
-    
-    if [ -f $AFFINE ]; then
-        echo "File exists: $AFFINE"
-    else
-        echo "File does not exist: $AFFINE"
-    fi
 
     antsApplyTransforms -d 3 \
         -i $CVR_MAP \

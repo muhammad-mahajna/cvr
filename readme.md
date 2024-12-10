@@ -111,4 +111,4 @@ Data is expected to be stored under `/home/muhammad.mahajna/workspace/research/d
 
 3. **Check the output**: under `/slurm_scripts/slurm_logs` locate the `.out` and `.err` files to monitor the progress and performance metrics.
 
-Enjoy exploring this project!
+Have fun!

@@ -1,6 +1,7 @@
 #!/bin/bash
 
-# ./check_local_outputs.sh $BASE_DIR 
+# ./check_local_outputs.sh :: post pre-processing checkup to test if the preprocessing results exist
+# Run your script in your local laptop only
 
 # Define the base directory containing all subject directories
 BASE_DIR="$1"

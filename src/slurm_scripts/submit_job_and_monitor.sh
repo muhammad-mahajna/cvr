@@ -1,3 +1,6 @@
+# Example usage
+# submit_job_and_monitor slurm_job.sh
+
 submit_job_and_monitor() {
     # Submit the job and capture the job ID
     job_id=$(sbatch "$1" | awk '{print $4}')
@@ -26,6 +29,3 @@ submit_job_and_monitor() {
     # Print the final job state and return the job ID and state
     echo "Job $job_id has finished with state: $state"
 }
-
-# Example usage of the function:
-# submit_job_and_monitor slurm_job.sh

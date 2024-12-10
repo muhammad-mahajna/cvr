@@ -5,6 +5,9 @@
 #SBATCH --mem=64G
 #SBATCH --cpus-per-task=4
 
+# When installing several libraries, sometimes the cluster will limit the available resources and the installation process will fail. 
+# Instead, create a simple job that does the installation and it'll work just fine. 
+
 # Create and activate Conda environment
 conda create -n cvr_env python=3.12 -y
 source activate cvr_env

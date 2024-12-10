@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# process_cvr_maps.sh :: preprocess reference CVR maps
+
 # Check if the correct number of arguments is provided
 if [ "$#" -lt 2 ] || [ "$#" -gt 3 ]; then
     echo "Usage: $0 <raw_data_base_dir> <base_output_dir> [<subject_id>]"
@@ -66,7 +68,7 @@ if [ -n "$SUBJECT_ID" ]; then
         exit 1
     fi
 else
-    # Process all subjects in the directory
+    # Process all subjects in the provided directory
     for file in "$INPUT_DIR"/*_BOLD_CVR.nii.gz; do
         # Extract subject ID from the filename
         filename=$(basename "$file")

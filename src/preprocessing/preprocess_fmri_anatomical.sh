@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# preprocess_fmri_anatomical.sh :: Run preprocessing steps on the fMRI data
+
 # Example Usage:
 # ./preprocess_fmri_anatomical.sh /path/to/input /path/to/output SUBJECT001 SUBJECT002
 # ./preprocess_fmri_anatomical.sh /path/to/input /path/to/output all

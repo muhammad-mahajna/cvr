@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# prepare_and_register_with_ants.sh :: prepare and register fMRI data to T1 anatomical images
+
 # Example usage:
 # ./prepare_and_register_with_ants.sh /path/to/base_dir SUBJECT001
 # ./prepare_and_register_with_ants.sh /path/to/base_dir all
